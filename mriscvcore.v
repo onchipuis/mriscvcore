@@ -38,34 +38,36 @@ module mriscvcore(
 	
 // SIGNAL DECLARATION 	*********************************************************
 
-wire [31:0] rd, rs1, rs2, imm, pc;
+// Data Buses
+wire [31:0] rd, rs1, rs2, imm, pc, inst;
+wire [11:0] codif;
+
+// Auxiliars
+wire [4:0] rs1i, rs2i, rdi;
+
 
 // DATAPATH PHASE	*************************************************************
-memory_interface memory_interface_int(
+MEMORY_INTERFACE MEMORY_INTERFACE_inst(
     .clock(clk),
     .resetn(rstn),
+    
+    // Data buses
     .rs1(rs1),
     .rs2(rs2),
+	.rd(rd),
+	.imm(imm), 
+	.pc(pc),
+	
+	// AXI4-Interface
 	.Rdata_mem(Rdata),
     .ARready(ARready),
 	.Rvalid(Rvalid),
 	.AWready(AWready),
 	.Wready(Wready),
 	.Bvalid(Bvalid),
-	.imm(imm), 
-    .W_R(W_R),
-    .wordsize(wordsize),
-    .enable(enable),
-	.pc(pc),
-	.signo(signo),
-	.busy(busy), 
-	.done(done),
-	.alineado(alineado), 
 	.AWdata(AWdata),
 	.ARdata(ARdata),
 	.Wdata(Wdata),
-	.rd(rd),
-	.inst(inst),
 	.ARvalid(ARvalid),
 	.RReady(RReady),
 	.AWvalid(AWvalid),
@@ -73,9 +75,35 @@ memory_interface memory_interface_int(
 	.arprot(ARprot),
 	.awprot(AWprot),
 	.Bready(Bready),
-	.Wstrb(Wstrb)
+	.Wstrb(Wstrb),
+	
+	// To DECO_INSTR
+	.inst(inst),
+	
+	// To FSM
+    .W_R(W_R),
+    .wordsize(wordsize),
+	.signo(signo),
+    .enable(enable),
+	.busy(busy), 
+	.done(done),
+	.alineado(alineado)
 	);
 	
+DECO_INSTR DECO_INSTR_inst(
+	.clock(clk),
+	
+	// Auxiliars to BUS
+	.rs1(rs1i),
+	.rs2(rs2i),
+	.inst(inst),
+	.resetDec(resetDec),
+	.enableDec(enableDec),
+	.rd(rd),
+	.imm_out(imm_out),
+	.codif(codif)
+	);
+
 REG_FILE REG_FILE_inst(
     .clk(clk),
     .rst(rstn),
@@ -88,31 +116,27 @@ REG_FILE REG_FILE_inst(
 	.rs2i(rs2i)
 	);
 	
-ALU_PROJECT ALU_PROJECT_inst(
+ALU ALU_inst(
     .clk(clk),
 	.reset(rstn),
-	.en(en),
-	.decinst(decinst),
+	
+	// Data Buses
+	.operando1(rs1),
 	.rs2(rs2),
-	.inm(inm),
-	.operando1(operando1),
 	.SALIDA_Alu(SALIDA_Alu),
+	.decinst(codif),
+	.inm(imm),
+	
+	// To UTILITY
 	.SALIDA_comparativa(SALIDA_comparativa),
+	
+	// To FSM
+	.en(en),
 	.carry(carry),
 	.sl_ok(sl_ok)
 	);
 	
-DecInstr1 DecInstr1_inst(
-	.inst(inst),
-	.clock(clk),
-	.resetDec(resetDec),
-	.enableDec(enableDec),
-	.rs1(rs1),
-	.rs2(rs2),
-	.rd(rd),
-	.imm_out(imm_out),
-	.codif(flag)
-	);
+
      
 IRQ IRQ_inst(
 	.rst(rstn),
@@ -133,7 +157,7 @@ IRQ IRQ_inst(
 	.flag(flag)
 	);
 
-MulU MulU_inst(
+MULT MULT_inst(
 	.clk(clk),
 	.reset(rstn),
 	.rs1(rs1),

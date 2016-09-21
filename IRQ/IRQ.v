@@ -1,5 +1,173 @@
 `timescale 1ns / 1ps
-/////////////////////// irr = interrupción
+
+module divM(
+	input wire clk_in, enable,
+	input wire RESET,
+	input wire [31:0] freq,
+	output reg clk_out);
+
+	//-- Valor por defecto del divisor
+	//-- Como en la iCEstick el reloj es de 12MHz, ponermos un valor de 12M
+	//-- para obtener una frecuencia de salida de 1Hz
+
+	//assign M = freq;
+	// M = 12_000_000;
+
+	//-- Numero de bits para almacenar el divisor
+	//-- Se calculan con la funcion de verilog $clog2, que nos devuelve el 
+	//-- numero de bits necesarios para representar el numero M
+	//-- Es un parametro local, que no se puede modificar al instanciar
+	localparam N = 32;
+
+	//-- Registro para implementar el contador modulo M
+	reg [N-1:0] divcounter = 0;
+
+	//-- Contador módulo M
+
+	///-------
+	always @(posedge clk_in)
+		
+			if (!RESET || !enable)
+				begin
+					divcounter = 32'b0;
+					clk_out   = 1'b0;
+				end
+			else if (divcounter == freq - 1) 
+				begin
+					divcounter =  32'b0;
+					clk_out    =   1'b1;
+			   end
+
+			else 
+				begin
+					divcounter = divcounter + 1;
+					clk_out   = 0; 
+			end
+
+	//-- Sacar el bit mas significativo por clk_out
+	//assign clk_out = divcounter[N-1];
+
+endmodule
+
+module Count(
+    input clk_in, enable,
+	 input wire [31:0]freq,
+	 input wire [31:0] Max_count,
+	 input RESET,
+    output reg Ready_count,
+	 output wire [31:0] Count_out
+    );
+
+	wire clk;
+	reg [31:0] Max_count_int, freq_int;
+	reg enable_int,Ready_count_int	;
+//	wire freq;
+	divM instance_name (
+    .clk_in(clk_in),
+	 .enable(enable_int),
+	 .freq(freq_int),
+	 .RESET(RESET),
+	 .clk_out(clk)
+    );
+//	 assign clk=clk_out;
+//	 assign M = Max_count; 
+	 localparam N = 32;
+	 reg b;wire c;	
+	 always @(posedge clk_in  or negedge RESET  )
+  	if (!RESET)
+			begin
+			 enable_int   = 0;
+			 Ready_count  = 1'b0;
+			end
+			else if (enable )
+			begin
+				 enable_int   = 1;
+				 Ready_count  = 1'b0;
+				 b            =1'b1;
+			end
+/*			else if ( Ready_count_int & (Count_out==0))
+				begin
+			   enable_int   = 1; 
+				Ready_count  = 1'b1;
+				end
+		  else if (Ready_count_int & (Count_out==1))
+				begin				   
+				enable_int   = 0; 
+				 Ready_count  = 1'b0;
+				end
+*/
+
+			else if (Ready_count_int)
+				begin
+			   enable_int   = 0; 
+				b  =  1'b0;
+				Ready_count = c;
+				end
+
+				else 
+				begin
+				Ready_count = c;
+				end
+			
+	assign c = b? Ready_count_int:1'b0;
+  	always @(posedge clk_in  or negedge RESET )
+  	if (!RESET)
+			begin
+				Max_count_int = 32'b0;
+				 freq_int     = 32'b0;
+	//				 enable_int   = 0;
+	//				 Ready_count  = 32'b0;
+			end
+		else if (enable_int) 
+			begin
+				 Max_count_int = Max_count;
+				 freq_int   = freq;
+	//				 enable_int   = 1;
+			end
+	//   		else if (Ready_count)
+	//				 enable_int   = 0;
+			else
+			begin
+			    Max_count_int = 32'b0;
+				 freq_int     = 32'b0;
+	//			 enable_int   = 0;  
+			end
+
+  
+	reg [N-1:0] divcounter = 0;
+
+	//-- Contador módulo M
+	always @(posedge clk_in or negedge RESET)
+
+
+		if (!RESET )
+			begin
+				divcounter = 32'b0;
+				Ready_count_int   = 1'b0;
+			end
+		else if (clk && enable_int) 
+		begin
+			if (divcounter == Max_count_int )
+				begin
+					divcounter =32'b0;
+					Ready_count_int   = 1'b1;
+				 end
+
+			else 
+				begin
+					divcounter = divcounter + 1;
+					Ready_count_int   = 1'b0; 
+				
+			   end
+	 	end
+
+ 	// assign   	Count_out = (enable) ? divcounter: 32'b0;
+  	assign Count_out = divcounter;
+
+	//-- Sacar el bit mas significativo por clk_out
+	//assign time_out = divcounter[N-1];
+endmodule
+
 module IRQ(
 	input rst,clk,savepc,en,
 	input [11:0] instr,
@@ -8,164 +176,195 @@ module IRQ(
 	output flag
     );
 
-reg xr,s3,m7,enable,m8;
-wire s1,s2,t3,t4,t5,t6,R_C;
-wire [31:0] ss2,ss3,m5,mr,C_O;
-reg [31:0] ss1,m1,m2,m3,m4,m6,rs1t,immt,t7,M_C,fr,q,t8,t10,rd1;
-reg [8:0] t1;
-assign s1 = inirr ? 1:0;
-assign s2 = m1 ? 1:0;
-assign ss2 = xr ? m6:m4;
-assign mr = xr ? ss3:ss2;
-assign m5 = m1|mr|ss2;
-assign ss3 = (~ss1)&ss2;
-assign t3 = rs1!=rs1t? 1:0;
-assign t6 = imm!=immt? 1:0;
-assign outirr=q;
-assign addrm=m3;
-assign flag=s3;
-assign pc_c=m2;
-assign pc_irq=t10;
-assign rd=rd1;
-
-always@(posedge clk or negedge rst)
-	if(!rst) ss1=0;
-	else if (en) ss1=rs1|imm;
-	else ss1=0;
-
-always@(posedge clk or negedge rst) // irqpc save (como salida es pc_irq)// con instrucción ojo // preguntar si esta instruccion va con en
-	if(!rst) t10=0;
-	else if (t1[8]) t10=rs1|imm;
-	else t10=t10; 
-
-always@(posedge clk or negedge rst) // registro para sincronización de la línea de resta de irrs
-	if(!rst) m6=0;
-	else if (t3|t6) m6=mr;
-	else m6=m6; 
+	reg flag_q,irr_tisirr,enable,irr_ebreak;
+	wire any_inirr,any_regirr,rs1_chg,act_irr,flag_ind,imm_chg,R_C;
+	wire [31:0] ss2,erased_irrstate,irrstate,C_O,irr_toerase;
+	reg [31:0] regirr,pc_c_q,addrm_q,true_irrstate,m6,rs1t,immt,timer_count,timer_max_count,div_freq,q,irrstate_rd,pc_irq_reg,rd1;
+	reg [8:0] instr_sel;
 	
-/*always@(negedge rst or posedge savepc) // save pc // comparar con la otra estructura y preguntar diferencia
-	if(!rst) m2=0;
-	else m2=pc;*/
+	wire is_ebreak;
+	wire is_addrms;
+	wire is_addrme;
+	wire is_tisirr;
+	wire is_irrstate;
+	wire is_clraddrm;
+	wire is_clrirq;
+	wire is_retirq;
+	wire is_addpcirq;
 	
-// CKDUR: The above lines creates FLIP-FLOP with clock as "savepc", this is not a correc behavior
-// Circuit that does the same but with FF as clk:
-always@(posedge clk or negedge rst)
-	if(!rst) m2=0;
-	else if(savepc) m2=pc;
-	else m2=m2;
+	////////////////////////////////////////////////////////////.
+	// ** Interruption generation
+	assign any_inirr = inirr ? 1:0;
 	
-/*	
-always@(posedge clk or negedge rst or posedge s1) //pc_irq // preguntar duración minima de inirr
-	if(!rst) t11=0;
-	else if (s1) t11=t10;
-	else t11=0;
-*/
-
-always@(posedge clk or negedge rst/* or posedge s1*/) // flag // CKDUR: not necesary to do s1 aas a latch.
-	if(!rst) s3=0;
-	else if(s1) s3=1;
-	else if (t5) s3=0;
-	else s3=s3; 
+	always@(negedge rst or posedge clk) // ebreak interrupt
+		if (!rst) irr_ebreak=0;
+		else if (is_ebreak) irr_ebreak=1;
+		else irr_ebreak=0;
 	
-/*
-always@(posedge clk or negedge rst) //pc_c // revisar la duración del pc_c
-	if(!rst) t9=0;
-	else if (t5) t9=m2;
-	else t9=0;
-*/
+	always@(posedge clk or negedge rst) // timer interrupt
+		if(!rst) begin 
+			enable=0; 
+			irr_tisirr=0; 
+			timer_count=0; 
+			div_freq=0; 
+			timer_max_count=0; 
+		end else if (is_tisirr) begin 
+			enable=1; 
+			irr_tisirr=0; 
+			timer_count=0; 
+			div_freq=rs1; 
+			timer_max_count=rs2; 
+		end	else begin
+			enable=0; 
+			irr_tisirr=R_C; 
+			timer_count=C_O; 	// Basically is not used
+			div_freq=0; 
+			timer_max_count=0; 
+		end // revisar comportamiento si en no está activado  ///
+	Count timer_counter (
+		.clk_in(clk), 
+		.enable(enable), 
+		.freq(div_freq), 
+		.Max_count(timer_max_count), 
+		.RESET(rst), 
+		.Ready_count(R_C), 
+		.Count_out(C_O)
+		);
 
-always@(negedge rst or posedge clk)
-	if(!rst) m1=0;
-	else if (s1|m7|m8) m1={inirr[31:2],m7,m8};
-	else m1=0;
-
-always@(posedge clk or negedge rst)
-	if(!rst) m4=0;
-	else m4=m5;
+	always@(negedge rst or posedge clk)
+		if(!rst) regirr=0;
+		else /*if (any_inirr|irr_tisirr|irr_ebreak)*/ regirr={inirr[31:2],irr_tisirr,irr_ebreak};
+		//else regirr=0;
+		
+	assign any_regirr = regirr ? 1:0;
 	
-always@(negedge clk or negedge rst) // registros para detección de cambios en rs1 y imm
-	if(!rst) begin rs1t=0; immt=0; end
-	else if(en) begin rs1t=rs1; immt=imm; end
-	else begin rs1t=rs1t; immt=immt; end 	
-
-always@(posedge clk or negedge rst) // almacena rs1 en addrm y lo borra 
-	if(!rst) m3=0;
-	else if (t1[1])m3=rs1;
-	else if (t1[5])m3=0;
-	else m3=m3;
-
-always@(instr,en,rst,m3,t8) // selector de instrucciones
-	if(!rst) begin t1=0; rd1=0; end
-	else 
-	case({instr,en})
-	13'b0000000110001: begin t1 = 1; rd1=0; end //SBREAK 0 
-	13'b0000100110001: begin t1 = 2; rd1=0; end //ADDRMS 1 
- 	13'b0001000110001: begin t1 = 4; rd1=m3; end  //ADDRME 2
-	13'b0001100110001: begin t1 = 8; rd1=0; end  //TISIRR 3 
-	13'b0010000110001: begin t1 = 16; rd1=t8; end  //IRRSTATE 4
-	13'b0010100110001: begin t1 = 32; rd1=0; end  //CLRADDRM 5
-	13'b0011000110001: begin t1 = 64; rd1=0; end  //CLRIRQ 6
-	13'b0011100110001: begin t1 = 128; rd1=0; end  //RETIRQ 7
-	13'b0000000110011: begin t1 = 256; rd1=0; end  //ADDPCIRQ 8
-	default begin t1 = 0; rd1=0; end
-	endcase
+	////////////////////////////////////////////////////////////
+	// ** Interrupt erasing and flagging
+		
+	// irr_toerase assign, this is the interrupt indicated to be erased via 'is_clrirq'
+	assign irr_toerase=rs1|imm;
+	assign erased_irrstate = (~irr_toerase)&true_irrstate;
 	
-/*always@(negedge rst or posedge t1[6] or posedge s2) // selector del bloque que agrega y resta irrs
-	if (!rst) xr=0;
-	else if (s2) xr=0;
-	else xr=1;*/
-// CKDUR: The above lines creates FLIP-FLOP with clock as "t1[6]" or "s2", this is not a correc behavior
-// THIS FLIP-FLOP ISNT EVEN SYNTHETIZABLE!!!
-// Circuit that does the same but with FF as clk:
-/*always@(posedge clk or negedge rst) // selector del bloque que agrega y resta irrs
-	if (!rst) xr=0;
-	else if (t1[6] || s2) begin 
-		if (s2) xr=0;
-		else xr=1;
-	end*/
-// CKDUR: After analisys I concluded that FF is not the behavior, this is a COMBINATIONAL.
-// STILL... creates a latch in the first version. A proper way to do this CORRECTLY with "always" is like:
-// Hope it works...
-always@(*)
-	if (!rst) xr=0;
-	else if (t1[6] || s2) begin 
-		if (s2) xr=0;
-		else xr=1;
-	end else xr=0;	// Default value
-
-assign t4 = mr? 0:1; // indicador de alguna irr activa
-assign t5= t4&t1[7]; // indicador de flag
-
-////////////////////////////////////////////////////////////
-always@(posedge clk or negedge rst)
-	if(!rst) begin enable=0; m7=0; t7=0; fr=0; M_C=0; end
-	else if (t1[3])begin enable=1; m7=0; t7=0; fr=rs1; M_C=rs2; end
-	else begin enable=0; m7=R_C; t7=C_O; fr=0; M_C=0; end // revisar comportamiento si en no está activado  ///
-
-Count instance2 (
-    .clk_in(clk), 
-    .enable(enable), 
-    .freq(fr), 
-    .Max_count(M_C), 
-    .RESET(!rst), 
-    .Ready_count(R_C), 
-    .Count_out(C_O)
-    );
-////////////////////////////////////////////////////////////
+	// Update new irrstate
+	always@(posedge clk or negedge rst)
+		if(!rst) true_irrstate<=0;
+		else if(is_clrirq) true_irrstate <= erased_irrstate;
+		else true_irrstate <= regirr | true_irrstate;
+		
+	assign irrstate = true_irrstate;
 	
-always@(negedge rst or posedge clk) // irrstate out
-	if (!rst) t8=0;
-	else if (t1[4]) t8=mr;
-	else t8=t8;	
+	// Acknoledge generation
+	always@(negedge rst or posedge clk) // señal de borrado outirr
+		if (!rst) q<=0;
+		else if (is_clrirq) q<=irr_toerase&true_irrstate;
+		else q<=0;
+	assign outirr=q;
+		
+	// Flag generation
+	assign act_irr = irrstate? 0:1; 		// Active irr indicator
+	assign flag_ind= act_irr & is_retirq; 	// Flag indicator	
+	always@(posedge clk) 					// Flag
+		if(!rst) flag_q=0;
+		else if(any_inirr) flag_q=1;
+		else if (flag_ind) flag_q=0;
+		else flag_q=flag_q; 
+	assign flag=flag_q;
+	
+	////////////////////////////////////////////////////////////
+	// ** Instruction Selector
+	always @* 
+		case({instr,en})
+			13'b0000001110011: begin instr_sel = 9'b000000001; 	rd1=0;  		end 	//EBREAK 0 
+			13'b0000100110001: begin instr_sel = 9'b000000010; 	rd1=0;  		end 	//ADDRMS 1 
+		 	13'b0001000110001: begin instr_sel = 9'b000000100; 	rd1=addrm_q; 	end  	//ADDRME 2
+			13'b0001100110001: begin instr_sel = 9'b000001000; 	rd1=0;  		end  	//TISIRR 3 
+			13'b0010000110001: begin instr_sel = 9'b000010000; 	rd1=irrstate_rd;end  	//IRRSTATE 4
+			13'b0010100110001: begin instr_sel = 9'b000100000; 	rd1=0;  		end  	//CLRADDRM 5
+			13'b0011000110001: begin instr_sel = 9'b001000000; 	rd1=0;  		end  	//CLRIRQ 6
+			13'b0011100110001: begin instr_sel = 9'b010000000; 	rd1=0;  		end  	//RETIRQ 7
+			13'b0000000110001: begin instr_sel = 9'b100000000; 	rd1=0;  		end  	//ADDPCIRQ 8
+			default 		 : begin instr_sel = 9'b000000000; 	rd1={32{1'bz}};	end
+		endcase
+	assign is_ebreak   = instr_sel[0];
+	assign is_addrms   = instr_sel[1];
+	assign is_addrme   = instr_sel[2];
+	assign is_tisirr   = instr_sel[3];
+	assign is_irrstate = instr_sel[4];
+	assign is_clraddrm = instr_sel[5];
+	assign is_clrirq   = instr_sel[6];
+	assign is_retirq   = instr_sel[7];
+	assign is_addpcirq = instr_sel[8];
+	
+	assign rd=rd1;
+		
+	/////////////////////////////////////////////////////////////
+	// ** Instruction - dedicated registers
+	always@(posedge clk or negedge rst) // pc_irq with addpcirq
+		if(!rst) pc_irq_reg=0;
+		else if (is_addpcirq) pc_irq_reg=rs1|imm;
+		else pc_irq_reg=pc_irq_reg; 
+	assign pc_irq=pc_irq_reg;
+	
+	always@(negedge rst or posedge clk) // irrstate out (rd)
+		if (!rst) irrstate_rd=0;
+		else if (is_irrstate) irrstate_rd=irrstate;
+		else irrstate_rd=irrstate_rd;	
+	
+	always@(posedge clk or negedge rst) // Stores accord to instruction in 'addrm' and erases it
+		if(!rst) addrm_q=0;
+		else if (is_addrms)addrm_q=rs1;	// for addrms
+		else if (is_clraddrm)addrm_q=0;	// for clraddrm
+		else addrm_q=addrm_q;
+	assign addrm=addrm_q;
+	
+	always@(posedge clk or negedge rst)	// Not an instruction, this is backup pc when there is an interrupt
+		if(!rst) pc_c_q=0;
+		else if(savepc) pc_c_q=pc;
+		else pc_c_q=pc_c_q;
+	assign pc_c=pc_c_q;
+	
+/////////////////////////////////////////////////////////////////////////////
+// OBFUSCATED LINE	
+	
+	
 
-always@(negedge rst or posedge clk) // señal de borrado outirr
-	if (!rst) q=0;
-	else if (t1[6]) q=ss1&ss2;
-	else q=0;
+	
+	
+	
+		
+	
+	
+	/*	
+	always@(posedge clk or negedge rst or posedge any_inirr) //pc_irq // preguntar duración minima de inirr
+		if(!rst) t11=0;
+		else if (any_inirr) t11=pc_irq_reg;
+		else t11=0;
+	*/
+	
+	/*
+	always@(posedge clk or negedge rst) //pc_c // revisar la duración del pc_c
+		if(!rst) t9=0;
+		else if (flag_ind) t9=pc_c_q;
+		else t9=0;
+	*/
 
-always@(negedge rst or posedge clk) // bit 0 de la interrupción - sbreak
-	if (!rst) m8=0;
-	else if (t1[0]) m8=1;
-	else m8=0;
+	
+
+	
+	
+		
+
+	
+	
+	
+
+	////////////////////////////////////////////////////////////
+
+	
+	////////////////////////////////////////////////////////////
+
+	
+
+	
 	
 endmodule
