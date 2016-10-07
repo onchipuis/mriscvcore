@@ -32,8 +32,8 @@ module true_dpram_sclk
 			ram[addr_a] <= data_a;
 		end
 	end
-	assign q_a = addr_a?ram[addr_a]:32'd0;
-	assign q_b = addr_b?ram[addr_b]:32'd0;
+	assign q_a = addr_a?ram[addr_a]:32'd0;		// Assign zero if index is zero because zero register
+	assign q_b = addr_b?ram[addr_b]:32'd0;		// Assign zero if index is zero because zero register
 	
 endmodule
 

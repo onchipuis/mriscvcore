@@ -22,46 +22,35 @@ module divM(
 	//-- Registro para implementar el contador modulo M
 	reg [N-1:0] divcounter = 0;
 
-	//-- Contador módulo M
-
-	///-------
+	//-- M module counter
 	always @(posedge clk_in)
-		
-			if (!RESET || !enable)
-				begin
-					divcounter = 32'b0;
-					clk_out   = 1'b0;
-				end
-			else if (divcounter == freq - 1) 
-				begin
-					divcounter =  32'b0;
-					clk_out    =   1'b1;
-			   end
-
-			else 
-				begin
-					divcounter = divcounter + 1;
-					clk_out   = 0; 
-			end
-
-	//-- Sacar el bit mas significativo por clk_out
-	//assign clk_out = divcounter[N-1];
+		if (!RESET || !enable)
+		begin
+			divcounter = 32'b0;
+			clk_out    =  1'b0;
+		end else if (divcounter == freq - 1) begin
+			divcounter = 32'b0;
+			clk_out    =  1'b1;
+		end else begin
+			divcounter = divcounter + 1;
+			clk_out    = 0; 
+		end
 
 endmodule
 
 module Count(
     input clk_in, enable,
-	 input wire [31:0]freq,
-	 input wire [31:0] Max_count,
-	 input RESET,
-    output reg Ready_count,
-	 output wire [31:0] Count_out
+	input wire [31:0]freq,
+	input wire [31:0] Max_count,
+	input RESET,
+	output reg Ready_count,
+	output wire [31:0] Count_out
     );
 
 	wire clk;
 	reg [31:0] Max_count_int, freq_int;
 	reg enable_int,Ready_count_int	;
-//	wire freq;
+	
 	divM instance_name (
     .clk_in(clk_in),
 	 .enable(enable_int),
@@ -69,103 +58,57 @@ module Count(
 	 .RESET(RESET),
 	 .clk_out(clk)
     );
-//	 assign clk=clk_out;
-//	 assign M = Max_count; 
-	 localparam N = 32;
-	 reg b;wire c;	
-	 always @(posedge clk_in  or negedge RESET  )
-  	if (!RESET)
-			begin
-			 enable_int   = 0;
-			 Ready_count  = 1'b0;
-			end
-			else if (enable )
-			begin
-				 enable_int   = 1;
-				 Ready_count  = 1'b0;
-				 b            =1'b1;
-			end
-/*			else if ( Ready_count_int & (Count_out==0))
-				begin
-			   enable_int   = 1; 
-				Ready_count  = 1'b1;
-				end
-		  else if (Ready_count_int & (Count_out==1))
-				begin				   
-				enable_int   = 0; 
-				 Ready_count  = 1'b0;
-				end
-*/
-
-			else if (Ready_count_int)
-				begin
-			   enable_int   = 0; 
-				b  =  1'b0;
-				Ready_count = c;
-				end
-
-				else 
-				begin
-				Ready_count = c;
-				end
+    
+	localparam N = 32;
+	reg b;wire c;	
+	always @(posedge clk_in)
+		if (!RESET)	begin
+			enable_int   = 0;
+			Ready_count  = 1'b0;
+		end else if (enable) begin
+			enable_int   = 1;
+			Ready_count  = 1'b0;
+			b            = 1'b1;
+		end	else if (Ready_count_int) begin
+			enable_int   = 0; 
+			b  =  1'b0;
+			Ready_count = c;
+		end	else begin
+			Ready_count = c;
+		end
 			
 	assign c = b? Ready_count_int:1'b0;
-  	always @(posedge clk_in  or negedge RESET )
+  	always @(posedge clk_in)
   	if (!RESET)
-			begin
-				Max_count_int = 32'b0;
-				 freq_int     = 32'b0;
-	//				 enable_int   = 0;
-	//				 Ready_count  = 32'b0;
-			end
-		else if (enable_int) 
-			begin
-				 Max_count_int = Max_count;
-				 freq_int   = freq;
-	//				 enable_int   = 1;
-			end
-	//   		else if (Ready_count)
-	//				 enable_int   = 0;
-			else
-			begin
-			    Max_count_int = 32'b0;
-				 freq_int     = 32'b0;
-	//			 enable_int   = 0;  
-			end
+		begin
+			Max_count_int = 32'b0;
+			freq_int      = 32'b0;
+		end	else if (enable_int) begin
+			Max_count_int = Max_count;
+			freq_int      = freq;
+		end	else begin
+			Max_count_int = 32'b0;
+			freq_int      = 32'b0;
+		end
 
   
 	reg [N-1:0] divcounter = 0;
 
-	//-- Contador módulo M
-	always @(posedge clk_in or negedge RESET)
-
-
-		if (!RESET )
-			begin
-				divcounter = 32'b0;
-				Ready_count_int   = 1'b0;
+	//-- M module counter
+	always @(posedge clk_in)
+		if (!RESET ) begin
+			divcounter = 32'b0;
+			Ready_count_int   = 1'b0;
+		end else if (clk && enable_int) begin
+			if (divcounter == Max_count_int ) begin
+				divcounter =32'b0;
+				Ready_count_int   = 1'b1;
+			end else begin
+				divcounter = divcounter + 1;
+				Ready_count_int   = 1'b0; 
 			end
-		else if (clk && enable_int) 
-		begin
-			if (divcounter == Max_count_int )
-				begin
-					divcounter =32'b0;
-					Ready_count_int   = 1'b1;
-				 end
-
-			else 
-				begin
-					divcounter = divcounter + 1;
-					Ready_count_int   = 1'b0; 
-				
-			   end
-	 	end
-
- 	// assign   	Count_out = (enable) ? divcounter: 32'b0;
+		end
   	assign Count_out = divcounter;
-
-	//-- Sacar el bit mas significativo por clk_out
-	//assign time_out = divcounter[N-1];
 endmodule
 
 module IRQ(
@@ -196,12 +139,12 @@ module IRQ(
 	// ** Interruption generation
 	assign any_inirr = inirr ? 1:0;
 	
-	always@(negedge rst or posedge clk) // ebreak interrupt
+	always@(posedge clk) // ebreak interrupt
 		if (!rst) irr_ebreak=0;
 		else if (is_ebreak) irr_ebreak=1;
 		else irr_ebreak=0;
 	
-	always@(posedge clk or negedge rst) // timer interrupt
+	always@(posedge clk) // timer interrupt
 		if(!rst) begin 
 			enable=0; 
 			irr_tisirr=0; 
@@ -220,7 +163,7 @@ module IRQ(
 			timer_count=C_O; 	// Basically is not used
 			div_freq=0; 
 			timer_max_count=0; 
-		end // revisar comportamiento si en no está activado  ///
+		end
 	Count timer_counter (
 		.clk_in(clk), 
 		.enable(enable), 
@@ -231,10 +174,9 @@ module IRQ(
 		.Count_out(C_O)
 		);
 
-	always@(negedge rst or posedge clk)
+	always@(posedge clk)
 		if(!rst) regirr=0;
-		else /*if (any_inirr|irr_tisirr|irr_ebreak)*/ regirr={inirr[31:2],irr_tisirr,irr_ebreak};
-		//else regirr=0;
+		else regirr={inirr[31:2],irr_tisirr,irr_ebreak};
 		
 	assign any_regirr = regirr ? 1:0;
 	
@@ -246,7 +188,7 @@ module IRQ(
 	assign erased_irrstate = (~irr_toerase)&true_irrstate;
 	
 	// Update new irrstate
-	always@(posedge clk or negedge rst)
+	always@(posedge clk)
 		if(!rst) true_irrstate<=0;
 		else if(is_clrirq) true_irrstate <= erased_irrstate;
 		else true_irrstate <= regirr | true_irrstate;
@@ -254,7 +196,7 @@ module IRQ(
 	assign irrstate = true_irrstate;
 	
 	// Acknoledge generation
-	always@(negedge rst or posedge clk) // señal de borrado outirr
+	always@(posedge clk)
 		if (!rst) q<=0;
 		else if (is_clrirq) q<=irr_toerase&true_irrstate;
 		else q<=0;
@@ -299,72 +241,28 @@ module IRQ(
 		
 	/////////////////////////////////////////////////////////////
 	// ** Instruction - dedicated registers
-	always@(posedge clk or negedge rst) // pc_irq with addpcirq
+	always@(posedge clk) // pc_irq with addpcirq
 		if(!rst) pc_irq_reg=0;
-		else if (is_addpcirq) pc_irq_reg=rs1|imm;
+		else if (is_addpcirq) pc_irq_reg=rs1+imm;
 		else pc_irq_reg=pc_irq_reg; 
 	assign pc_irq=pc_irq_reg;
 	
-	always@(negedge rst or posedge clk) // irrstate out (rd)
+	always@(posedge clk) // irrstate out (rd)
 		if (!rst) irrstate_rd=0;
 		else if (is_irrstate) irrstate_rd=irrstate;
 		else irrstate_rd=irrstate_rd;	
 	
-	always@(posedge clk or negedge rst) // Stores accord to instruction in 'addrm' and erases it
+	always@(posedge clk) // Stores accord to instruction in 'addrm' and erases it
 		if(!rst) addrm_q=0;
 		else if (is_addrms)addrm_q=rs1;	// for addrms
 		else if (is_clraddrm)addrm_q=0;	// for clraddrm
 		else addrm_q=addrm_q;
 	assign addrm=addrm_q;
 	
-	always@(posedge clk or negedge rst)	// Not an instruction, this is backup pc when there is an interrupt
+	always@(posedge clk)	// Not an instruction, this is backup pc when there is an interrupt
 		if(!rst) pc_c_q=0;
 		else if(savepc) pc_c_q=pc;
 		else pc_c_q=pc_c_q;
 	assign pc_c=pc_c_q;
-	
-/////////////////////////////////////////////////////////////////////////////
-// OBFUSCATED LINE	
-	
-	
-
-	
-	
-	
-		
-	
-	
-	/*	
-	always@(posedge clk or negedge rst or posedge any_inirr) //pc_irq // preguntar duración minima de inirr
-		if(!rst) t11=0;
-		else if (any_inirr) t11=pc_irq_reg;
-		else t11=0;
-	*/
-	
-	/*
-	always@(posedge clk or negedge rst) //pc_c // revisar la duración del pc_c
-		if(!rst) t9=0;
-		else if (flag_ind) t9=pc_c_q;
-		else t9=0;
-	*/
-
-	
-
-	
-	
-		
-
-	
-	
-	
-
-	////////////////////////////////////////////////////////////
-
-	
-	////////////////////////////////////////////////////////////
-
-	
-
-	
 	
 endmodule
