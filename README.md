@@ -1,4 +1,3 @@
 # mriscvcore
 
-This is NOT COMPLETE.
-This will be my version of RISC-V core
+![./riscv_core.png](./riscv_core.png)
