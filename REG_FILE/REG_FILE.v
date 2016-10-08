@@ -19,7 +19,7 @@ module true_dpram_sclk
 	input [31:0] data_a,
 	input [4:0] addr_a, addr_b,
 	input we_a, clk, rst,
-	output [31:0] q_a, q_b
+	output reg [31:0] q_a, q_b
 );
 	// Declare the RAM variable
 	reg [31:0] ram[31:0];
@@ -31,9 +31,9 @@ module true_dpram_sclk
 		begin
 			ram[addr_a] <= data_a;
 		end
+		q_a <= addr_a?ram[addr_a]:32'd0;		// Assign zero if index is zero because zero register
+		q_b <= addr_b?ram[addr_b]:32'd0;		// Assign zero if index is zero because zero register
 	end
-	assign q_a = addr_a?ram[addr_a]:32'd0;		// Assign zero if index is zero because zero register
-	assign q_b = addr_b?ram[addr_b]:32'd0;		// Assign zero if index is zero because zero register
 	
 endmodule
 

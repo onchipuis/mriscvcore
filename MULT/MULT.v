@@ -37,7 +37,7 @@ module FSM_Booth
 	end
 	//Asignacion de las salidas
 	always@(state)
-		if(state==2'b00) OutFSM = 3'b000;
+		if(state==2'b00) OutFSM = 3'b100;
 		else if (state==2'b01) OutFSM = 3'b110;
 		else if (state==2'b10) OutFSM = 3'b101;
 		else OutFSM = 3'b000;
@@ -104,7 +104,7 @@ endmodule
 
 module MULT(input clk,reset,Enable,
 	input [31:0] rs1,rs2,
-	input [11:0] funct3,
+	input [11:0] codif,
 	output [31:0] rd,
 	output reg Done);
 
@@ -125,9 +125,9 @@ module MULT(input clk,reset,Enable,
 	reg [63:0] rdu;
 	reg sig,signo;
 	reg [11:0] Op;
-	reg is_oper;
 	wire EnableMul;
 	wire Ready;
+	reg is_oper;
 
 
 	FSM_Booth u1 (.clk(clk),.reset(reset),.OutFSM(OutFSM1),.cont(cont1),.Enable(EnableMul)); //FSM1 (X1Y1)
@@ -140,7 +140,7 @@ module MULT(input clk,reset,Enable,
 
 
 	always@* begin
-		case(funct3)
+		case(codif)
 			12'b010010110011: begin
 				// Algoritmo KARATSUBA MULH (SxS)
 				if (rs1[31]) ss1 = ~rs1+1;
@@ -208,7 +208,10 @@ module MULT(input clk,reset,Enable,
 	
 
 	always@ (posedge clk) begin
-		if(Ready) begin
+		if(is_oper) begin
+			Done = 0;
+			rdu = 64'b0;
+		end else if(Ready) begin
 			if(sig) rdu = ~Out+1;
 			else rdu = Out;
 			Done = 1;

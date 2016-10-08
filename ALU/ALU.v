@@ -18,7 +18,8 @@ module ALU #(
 	output [31:0] rd,
 	output reg cmp,
 	output reg carry,
-	output reg sl_ok);
+	output is_rd,
+	output is_inst);
 	
 	reg [31:0] OUT_Alu;
 	reg [32:0] ADD_Alu;
@@ -39,183 +40,195 @@ module ALU #(
     reg [31:0] SRA_Alu;
     reg [4:0]  count;
     reg [31:0] oper2;
-    reg 	   rde;
     reg [31:0] OUT_Alu_rd;
+    reg  sl_ok;
+    reg [1:0] is_rd_reg;
+    reg [1:0] is_inst_reg;
+    reg is_rd_nr, is_inst_nr;
+    
+    always @(clk) begin
+    	if(reset == 1'b0 || en == 1'b0) begin
+    		is_rd_reg <= 0;
+    		is_inst_reg <= 0;
+    	end else begin
+    		is_rd_reg <= {is_rd_reg[0],is_rd_nr};
+    		is_inst_reg <= {is_inst_reg[0],is_inst_nr};
+    	end
+    end
+    
+    generate
+		if (REG_ALU & REG_OUT) begin  
+			assign is_rd = is_rd_nr & (&is_rd_reg);
+			assign is_inst = is_inst_nr & (&is_inst_reg);
+		end else if(REG_ALU | REG_OUT) begin
+			assign is_rd = is_rd_nr & is_rd_reg[0];
+			assign is_inst = is_inst_nr & is_inst_reg[0];
+		end else begin
+			assign is_rd = is_rd_nr;
+			assign is_inst = is_inst_nr;
+		end
+	endgenerate
     
     // WORKAROUND ABOUT 'oper2' and 'rd enable'
 	always @* begin
-		
+		is_rd_nr = en;
+		is_inst_nr = en;
 		case (decinst)
-			12'b000000010011:   begin      // addi
+			12'b000000010011:   begin // addi
                                 oper2 = imm;
-                                rde = 1'b1;
                                 end
-            12'b000000110011:   begin      // add
+            12'b000000110011:   begin // add
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end                    
 			12'b100000110011:	begin //sub 
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end                    
-			12'b001110010011:   begin   //andi
+			12'b001110010011:   begin //andi
                                 oper2 = imm;
-                                rde = 1'b1;
                                 end
-            12'b001110110011:   begin   //and
+            12'b001110110011:   begin //and
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end
 			12'b001000010011:   begin //xori
                                 oper2 = imm;
-                                rde = 1'b1;
                                 end
             12'b001000110011:   begin //xor
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end                    
 			12'b001100010011:   begin //ori
                                 oper2 = imm;
-                                rde = 1'b1;
                                 end
             12'b001100110011:   begin //or
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end
-            12'b000100010011:   begin //slt pide imm
+            12'b000100010011:   begin //slti
                                 oper2 = imm;
-                                rde = 1'b1;
                                 end
-            12'b000110010011:   begin //sltu pide imm
+            12'b000110010011:   begin //sltiu
                                 oper2 = imm;
-                                rde = 1'b1;
                                 end
-            12'b000100110011:   begin //slt pide rs2
+            12'b000100110011:   begin //slt
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end
-            12'b000110110011:   begin //sltu pide rs2
+            12'b000110110011:   begin //sltu
                                 oper2 = rs2;
-                                rde = 1'b1;
                                 end                    
 		    12'b000001100011:   begin //beq
-                                oper2 = imm;
-                                rde = 1'b1;
+                                oper2 = rs2;
+                                is_rd_nr = 1'b0;
                                 end
 			12'b001011100011:   begin //bge
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = 1'b0;
                                 end
 			12'b000011100011:   begin //bne
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = 1'b0;
                                 end
 			12'b001001100011:   begin //blt
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = 1'b0;
                                 end
 			12'b001101100011:   begin //bltu
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = 1'b0;
                                 end
-			12'b001111100011:   begin   //bgeu
+			12'b001111100011:   begin //bgeu
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = 1'b0;
                                 end
-		    12'b001010110011:   begin  //srl pide rs2
+		    12'b001010110011:   begin //srl
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = sl_ok;
                                 end
-            12'b001010010011:   begin  //srl pide imm
+            12'b001010010011:   begin //srli
                                 oper2 = imm;
-                                rde = 1'b1;
+                                is_rd_nr = sl_ok;
                                 end                    
-			12'b000010110011:   begin  //sll pide rs2
+			12'b000010110011:   begin //sll
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = sl_ok;
                                 end
-            12'b000010010011:   begin  //sll pide imm
+            12'b000010010011:   begin //slli
                                 oper2 = imm;
-                                rde = 1'b1;
+                                is_rd_nr = sl_ok;
                                 end
-            12'b101010110011:   begin  //sra pide rs2
+            12'b101010110011:   begin //sra
                                 oper2 = rs2;
-                                rde = 1'b1;
+                                is_rd_nr = sl_ok;
                                 end
-            12'b011010010011:   begin  //sra pide imm
+            12'b011010010011:   begin //srai
                                 oper2 = imm;
-                                rde = 1'b1;
+                                is_rd_nr = sl_ok;
                                 end
-			default:			begin  // NO INSTRUCTION
-                                oper2 = 'b0;
-                                rde = 1'b0;
+			default:			begin // NO INSTRUCTION
+                                oper2 = 'bx;
+                                is_rd_nr = 1'b0;
+                                is_inst_nr = 1'b0;
                                 end
 		endcase
 	end
 	
 	// ALU
-    generate if (REG_ALU) begin            
-		always @(posedge clk) begin	
-		    if (!reset) begin
-		        // ARITH
-				ADD_Alu <= 0;
-				SUB_Alu <= 0;
+    generate 
+		if (REG_ALU) begin            
+			always @(posedge clk) begin	
+				if (!reset) begin
+				    // ARITH
+					ADD_Alu <= 0;
+					SUB_Alu <= 0;
 
-				// COMBINATIONAL
-				AND_Alu <= 0;
-				XOR_Alu <= 0;    
-				OR_Alu  <= 0;
-
+					// COMBINATIONAL
+					AND_Alu <= 0;
+					XOR_Alu <= 0;    
+					OR_Alu  <= 0;
+				end else begin 
+				    // ARITH
+				    ADD_Alu <= rs1 + oper2;
+				    SUB_Alu <= rs1 - oper2; 
+				    
+				    // COMBINATIONAL
+				    AND_Alu <= rs1 & oper2;
+				    XOR_Alu <= rs1 ^ oper2;	
+				    OR_Alu  <= rs1 | oper2;
+				    SLT_Alu <= rs1 < oper2;
+				    SLTU_Alu <= $signed(rs1) < $signed(oper2);
+				end
+			end
+			always @* begin	 
 				// COMPARE
-				BEQ_Alu = 0;
-				BNE_Alu = 0;
-				BGE_Alu = 0;
-				BLT_Alu = 0;
-				BGEU_Alu = 0;
-				BLTU_Alu = 0;
-			end else begin 
-		        // ARITH
-		        ADD_Alu <= rs1 + oper2;
-		        SUB_Alu <= rs1 - oper2; 
-		        
-		        // COMBINATIONAL
-		        AND_Alu <= rs1 & oper2;
-		        XOR_Alu <= rs1 ^ oper2;	
-		        OR_Alu  <= rs1 | oper2;
-		        SLT_Alu <= rs1 < oper2;
-		        SLTU_Alu <= $signed(rs1) < $signed(oper2);
-		        
-		        // COMPARE
-		        BEQ_Alu = rs1 == oper2;
-		        BNE_Alu = !BEQ_Alu;
-		        BGE_Alu = rs1 >= oper2;
-		        BLT_Alu = !BGE_Alu;
-		        BGEU_Alu = $signed(rs1) >=  $signed(oper2);
-		        BLTU_Alu = !BGEU_Alu;
-		    end
-		end
-	end else begin
-		always @* begin	 
-		    // ARITH
-		    ADD_Alu = rs1 + oper2;
-		    SUB_Alu = rs1 - oper2; 
-		    
-		    // COMBINATIONAL
-		    AND_Alu = rs1 & oper2;
-		    XOR_Alu = rs1 ^ oper2;	
-		    OR_Alu  = rs1 | oper2;
-		    SLT_Alu = rs1 < oper2;
-		    SLTU_Alu = $signed(rs1) < $signed(oper2);
-		    
-		    // COMPARE
-		    BEQ_Alu = rs1 == oper2;
-		    BNE_Alu = !BEQ_Alu;
-		    BGE_Alu = rs1 >= oper2;
-		    BLT_Alu = !BGE_Alu;
-		    BGEU_Alu = $signed(rs1) >=  $signed(oper2);
-		    BLTU_Alu = !BGEU_Alu;
+				BEQ_Alu = rs1 == oper2;
+				BNE_Alu = !BEQ_Alu;
+				BGE_Alu = rs1 >= oper2;
+				BLT_Alu = !BGE_Alu;
+				BGEU_Alu = $signed(rs1) >=  $signed(oper2);
+				BLTU_Alu = !BGEU_Alu;
+			end
+		end else begin
+			always @* begin	 
+				// ARITH
+				ADD_Alu = rs1 + oper2;
+				SUB_Alu = rs1 - oper2; 
+				
+				// COMBINATIONAL
+				AND_Alu = rs1 & oper2;
+				XOR_Alu = rs1 ^ oper2;	
+				OR_Alu  = rs1 | oper2;
+				SLT_Alu = rs1 < oper2;
+				SLTU_Alu = $signed(rs1) < $signed(oper2);
+				
+				// COMPARE
+				BEQ_Alu = rs1 == oper2;
+				BNE_Alu = !BEQ_Alu;
+				BGE_Alu = rs1 >= oper2;
+				BLT_Alu = !BGE_Alu;
+				BGEU_Alu = $signed(rs1) >=  $signed(oper2);
+				BLTU_Alu = !BGEU_Alu;
+			end
 		end
 	endgenerate
+	
+	
 	
 	// SHIFTS
 	always @(posedge clk) begin	
@@ -236,7 +249,7 @@ module ALU #(
                 SLL_Alu <= SLL_Alu << 1;
                 SRA_Alu <= $signed(SRA_Alu) >>> 1;
                 count <= count - 1;
-            end if (count ==0) begin 
+            end else if (count ==0) begin 
                 sl_ok<=1'b1;
             end 
         end else begin
@@ -381,21 +394,23 @@ module ALU #(
 		endcase
 	end
 	
-	generate if (REG_ALU) begin            
-		always @(posedge clk) begin	
-		    if (!reset) begin
-		    	OUT_Alu_rd <= 0;
-			end else begin
-				OUT_Alu_rd <= OUT_Alu; 
-		    end
-		end
-	end else begin
-		always @* begin	
-		    OUT_Alu_rd = OUT_Alu; 
+	generate 
+		if (REG_ALU) begin            
+			always @(posedge clk) begin	
+				if (!reset) begin
+					OUT_Alu_rd <= 0;
+				end else begin
+					OUT_Alu_rd <= OUT_Alu; 
+				end
+			end
+		end else begin
+			always @* begin	
+				OUT_Alu_rd = OUT_Alu; 
+			end
 		end
 	endgenerate
 	
-	assign rd = rde?OUT_Alu_rd:32'bz;
+	assign rd = is_rd_nr?OUT_Alu_rd:32'bz;
 	
 
 endmodule

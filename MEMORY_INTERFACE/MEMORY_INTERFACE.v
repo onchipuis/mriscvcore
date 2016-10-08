@@ -20,7 +20,7 @@ module MEMORY_INTERFACE(
 	
 	output reg busy, 
 	output reg done,
-	output reg alineado, 
+	output reg align, 
 	output reg [31:0] AWdata,
 	output reg [31:0] ARdata,
 	output reg [31:0] Wdata,
@@ -42,7 +42,7 @@ module MEMORY_INTERFACE(
 	reg [31:0] Rdataq,Wdataq;
 	reg [3:0] Wstrbq;
 	reg [31:0] rdu,minstr,minstru;
-	reg rd_en,en_instr;
+	reg en_instr;
 ///////////////////////////////////////////////////////////////////////////////////
 /////////////// BEGIN FSM
 //////////////////////////////////////////////////////////////////////////////////	
@@ -55,12 +55,13 @@ module MEMORY_INTERFACE(
 	parameter inicioW 	= 3'b011;
 	parameter SW1 		= 3'b100;
 	parameter SW2		= 3'b101;
+	parameter SWB 		= 3'b110;
 	
 	// Instantiate the module
-	always @(state,ARready,W_R,Rvalid,AWready,Wready,Bvalid,enable) begin
+	always @* begin
 		case (state)
 			reposo : begin
-				if ((W_R==2'b11 && enable==1)|| (W_R==2'b01 && enable==1)) begin
+				if (((W_R[1]==1'b1) && enable==1)|| (W_R==2'b01 && enable==1)) begin
 					nexstate = inicioR;
 				end else if (W_R==2'b00 && enable==1) begin
 					nexstate = inicioW;
@@ -72,6 +73,11 @@ module MEMORY_INTERFACE(
 			inicioR : begin
 				if(ARready) begin
 					nexstate = SR;
+					/*if(Rvalid) begin
+						nexstate = reposo;
+					end else begin
+						nexstate = SR;
+					end*/
 				end else begin
 					nexstate=inicioR;
 				end
@@ -87,25 +93,64 @@ module MEMORY_INTERFACE(
 
 			inicioW : begin
 				if (AWready) begin
-					nexstate = SW1;
-				end else begin
+					nexstate=SW1;
+					if (Wready) begin
+						nexstate=SWB;
+						/*if (Bvalid) begin
+							nexstate=reposo;
+						end else begin
+							nexstate=SWB;
+						end*/
+					end else begin
+						nexstate=SW1;
+					end
+				end else if (Wready) begin
+					nexstate=SW2;
+					if (AWready) begin
+						nexstate=SWB;
+						/*if (Bvalid) begin
+							nexstate=reposo;
+						end else begin
+							nexstate=SWB;
+						end*/
+					end else begin
+						nexstate=SW2;
+					end
 					nexstate = inicioW;
 				end
 			end
 
 			SW1 : begin
 				if (Wready) begin
-					nexstate=SW2;
+					nexstate=SWB;
+					/*if (Bvalid) begin
+						nexstate=reposo;
+					end else begin
+						nexstate=SWB;
+					end*/
 				end else begin
 					nexstate=SW1;
 				end
 			end
-			
+
 			SW2 : begin
+				if (AWready) begin
+					nexstate=SWB;
+					/*if (Bvalid) begin
+						nexstate=reposo;
+					end else begin
+						nexstate=SWB;
+					end*/
+				end else begin
+					nexstate=SW2;
+				end
+			end
+			
+			SWB : begin
 				if (Bvalid) begin
 					nexstate=reposo;
 				end else begin
-					nexstate=SW2;
+					nexstate=SWB;
 				end
 			end
 
@@ -125,15 +170,17 @@ module MEMORY_INTERFACE(
         if (state==reposo)
             salida=7'b0000001;
         else if (state==inicioR)
-            salida=7'b1100010;
+            salida=7'b1000010;
         else if (state==SR)
-            salida=7'b1100010;
+            salida=7'b0100010;
         else if (state==inicioW)
-            salida=7'b0010010;
+            salida=7'b0011010;
         else if (state==SW1)
             salida=7'b0001010;
         else if (state==SW2)
-            salida=7'b0001110;
+            salida=7'b0010010;
+        else if (state==SWB)
+            salida=7'b0000110;
         else
             salida=7'bxxxxxxx;
     end
@@ -159,8 +206,8 @@ module MEMORY_INTERFACE(
 		awprot 		= 3'b000;
 		AWdata		= rs1+imm;
 		arprot		= 3'b000;
-		ARdata		= rs2+imm;
-		alineado 	= 0;
+		ARdata		= rs1+imm;
+		align 	= 0;
 		Wdataq		= 0;
 		Wstrbq		= 4'b0000;
 		minstru		= 0;
@@ -176,19 +223,19 @@ module MEMORY_INTERFACE(
 				AWdata = rs1+imm;
 				case (wordsize)
 					2'b10  : begin
-						alineado=(AWdata[1:0]==2'b00)? 1:0;
-						Wdataq=rs1;
+						align=(AWdata[1:0]==2'b00)? 1:0;
+						Wdataq=rs2;
 						Wstrbq=4'b1111;
 					end
 					2'b01  : begin
-						alineado=(AWdata[0]==1'b0)? 1:0;
+						align=(AWdata[0]==1'b0)? 1:0;
 						Wstrbq = AWdata[1] ? 4'b1100 : 4'b0011;
-						Wdataq={2{rs1[15:0]}};
+						Wdataq={2{rs2[15:0]}};
 					end
 					2'b00  : begin
-						alineado=1;
+						align=1;
 						Wstrbq = 4'b0001 << ARdata[1:0];
-						Wdataq={4{rs1[7:0]}};
+						Wdataq={4{rs2[7:0]}};
 					end
 				endcase						
 			end
@@ -206,15 +253,15 @@ module MEMORY_INTERFACE(
 				rd_en=1;
 				arprot=3'b000;
 				en_instr=0;
-				ARdata= rs2+imm;
+				ARdata= rs1+imm;
 				case (wordsize)
 					2'b10  : begin
-						alineado=(ARdata[1:0]==0)? 1:0;
+						align=(ARdata[1:0]==0)? 1:0;
 						Rdataq=Rdata_mem;
 					end
 					
 					2'b01  : begin
-						alineado=(ARdata[0]==0)? 1:0;
+						align=(ARdata[0]==0)? 1:0;
 						case (ARdata[1])
 							1'b0: begin 
 								case (signo) 
@@ -234,7 +281,7 @@ module MEMORY_INTERFACE(
 					end
 			
 					2'b00  : begin
-						alineado=1;
+						align=1;
 						case (ARdata[1:0])
 							2'b00:  begin 
 								case (signo) 

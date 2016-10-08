@@ -3,7 +3,7 @@
 module UTILITY(
 	input 		  clk,
 	input 		  rst,
-	input 		  enable_int,
+	input 		  enable_pc,
 	input [31:0]  imm,
 	input [31:0]  irr_ret,
 	input [31:0]  irr_dest,
@@ -12,24 +12,25 @@ module UTILITY(
 	input [31:0]  rs1,
 	input 		  branch, 
 	output [31:0] rd,
-	output [31:0] pc);
+	output [31:0] pc,
+	output reg    is_rd,
+	output reg    is_inst);
 
 	reg [63:0] N_CYCLE=0,N_INSTRUC=0,REAL_TIME=0;
 	reg [31:0] TIME=0,rd_n=0,PC_N=0,PC_N2=0,RD_DATA=0;
 	wire [31:0] PC_BRANCH, PC_SALTOS, PC_ORIG;
-	reg is_rd;
 
 	// RDCYCLE REGISTER
 	always @(posedge clk )
 		begin
-			if (rst) N_CYCLE<=0;
+			if (rst == 1'b0) N_CYCLE<=0;
 			else  N_CYCLE <= N_CYCLE + 1;
 		end
 
 	// REAL TIME REGISTER
 	always @(posedge clk )
 		begin
-			if (rst) begin
+			if (rst == 1'b0) begin
 				TIME<=0;
 				REAL_TIME<=0;
 			end else if(TIME==100) begin
@@ -42,8 +43,8 @@ module UTILITY(
 	// INSTRUCTION NUMBER REGISTER
 	always @(posedge clk )
 		begin
-			if (rst) N_INSTRUC<=0;
-			else if (enable_int)  N_INSTRUC <= N_INSTRUC + 1;	
+			if (rst == 1'b0) N_INSTRUC<=0;
+			else if (enable_pc)  N_INSTRUC <= N_INSTRUC + 1;	
 		end
 
 
@@ -60,15 +61,19 @@ module UTILITY(
 		endcase
 	
 	// RD assignation phase 2: instruction-specific
-	always @(opcode, RD_DATA,PC_N,imm)
+	always @(opcode, RD_DATA,PC_N,imm) begin
 		is_rd = 1;
+		is_inst = 1;
+		rd_n = 0; 
 		case (opcode)
-			7'b000001110011 : rd_n = RD_DATA;		// CSRR*
-			7'b000001101111 : rd_n = PC_ORIG;		// JAL
-			7'b000001100111 : rd_n = PC_ORIG;		// JALR
-			7'b000000010111 : rd_n = PC_N2+imm;		// AUIPC
-			default: begin rd_n = 0; is_rd = 0; end	// ILLEGAL
+			12'b000001110011 : rd_n = RD_DATA;		// CSRR*
+			12'b000001101111 : rd_n = PC_ORIG;		// JAL
+			12'b000001100111 : rd_n = PC_ORIG;		// JALR
+			12'b000000010111 : rd_n = PC_N2+imm;	// AUIPC
+			12'b000000110111 : rd_n = imm;			// LUI
+			default: begin is_rd = 0; is_inst = 0; end	// ILLEGAL
 		endcase
+	end
 	
 	assign rd = is_rd?rd_n:32'hzzzzzzzz;
 
@@ -76,25 +81,26 @@ module UTILITY(
 	assign PC_SALTOS = PC_N2 + imm;
 	assign PC_ORIG = PC_N2 + 4;
 	assign PC_BRANCH = branch ? PC_SALTOS : PC_ORIG;
-	always @*
+	always @* begin
 		if(irr) begin
-			PC_N = irr_pc;								// An interrupt (Who saves the previous PC is IRQ module via irr_ret)
+			PC_N = irr_dest;								// An interrupt (Who saves the previous PC is IRQ module via irr_ret)
 		end else if(opcode[6:0] == 7'b1100011) begin
 			PC_N = PC_BRANCH;							// BXX 
 		end else begin
 			case (opcode)
-				7'b000001100111: PC_N = rs1;			// JALR
-				7'b000001101111: PC_N = PC_SALTOS;		// JAL
-				7'b001110011000: PC_N = irr_ret;		// RETIRQ
-				default: 		 PC_N = PC_ORIG;		// Advance the program counter
+				12'b000001100111: PC_N = rs1;			// JALR
+				12'b000001101111: PC_N = PC_SALTOS;		// JAL
+				12'b001110011000: PC_N = irr_ret;		// RETIRQ
+				default: 		  PC_N = PC_ORIG;		// Advance the program counter
 			endcase
 		end		
+	end
 
 	// PC sync
 	always @(posedge clk)
 		begin	
-			if (rst) PC_N2<=0;
-			else if(enable_int) PC_N2 <= PC_N ;
+			if (rst == 1'b0) PC_N2<=0;
+			else if(enable_pc) PC_N2 <= PC_N ;
 		end
 	assign pc = PC_N2;
 endmodule
