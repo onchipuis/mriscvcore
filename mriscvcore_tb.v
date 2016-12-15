@@ -43,14 +43,10 @@ module mriscvcore_tb;
 	reg         mem_axi_rvalid = 0;
 	wire        mem_axi_rready;
 	reg  [31:0] mem_axi_rdata = {32{1'b0}};
+	reg is_o = 0;
+	reg is_ok = 0;
 
-	mriscvcore/* #(
-`ifdef SP_TEST
-		.ENABLE_REGS_DUALPORT(0),
-`endif
-		.ENABLE_MUL(1),
-		.ENABLE_IRQ(1)
-	)*/ mriscvcore_inst (
+	mriscvcore mriscvcore_inst (
 		.clk    (clk            ),
 		.rstn   (resetn         ),
 		.trap   (trap           ),
@@ -163,6 +159,12 @@ module mriscvcore_tb;
 			if (latched_wstrb[3]) memory[latched_waddr >> 2][31:24] <= latched_wdata[31:24];
 		end else
 		if (latched_waddr == 32'h1000_0000) begin
+			if(latched_wdata == 79 || (latched_wdata == 75 && latched_wdata == 1'b1))
+				is_o <= 1'b1;
+			else
+				is_o <= 1'b0;
+			if(latched_wdata == 75 && is_o == 1'b1)
+				is_ok <= 1'b1;
 `ifdef VERBOSE
 			if (32 <= latched_wdata && latched_wdata < 128)
 				$display("OUT: '%c'", latched_wdata);
@@ -236,7 +238,13 @@ module mriscvcore_tb;
 			$dumpfile("mriscvcore_tb.vcd");
 			$dumpvars(0, mriscvcore_tb);
 		end
-		repeat (1000000) @(posedge clk);
+		repeat (1000000) begin
+		  @(posedge clk);
+		  if(is_ok) begin
+		    $display("Program terminated sucesfully");
+		    $finish;
+		  end
+		end
 		$display("TIMEOUT");
 		$finish;
 	end

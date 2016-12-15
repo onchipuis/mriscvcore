@@ -159,7 +159,7 @@ IRQ IRQ_inst(
 	.clk(clk),
 	.savepc(savepc),
 	.en(en),
-	.instr(instr),
+	.instr(code),
 	.rs1(rs1),
 	.rs2(rs2),
 	.inirr(inirr),
