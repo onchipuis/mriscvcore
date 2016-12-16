@@ -2,7 +2,8 @@
  `define VERBOSE
  `define AXI_TEST
 
-module mriscvcore_tb;
+module mriscvcore_tb
+  #(parameter memory_file = "firmware.hex");
 
 	reg clk = 1;
 	reg resetn = 0;
@@ -72,7 +73,7 @@ module mriscvcore_tb;
 	);
 
 	reg [31:0] memory [0:64*1024/4-1];
-	initial $readmemh("firmware.hex", memory);
+	initial $readmemh(memory_file, memory);
 
 	reg [63:0] xorshift64_state = 64'd88172645463325252;
 
