@@ -1,0 +1,46 @@
+CAPI=1
+
+[main]
+
+name = mriscvcore
+
+simulators = icarus modelsim
+
+[fileset rtl]
+files =
+ IRQ/IRQ.v
+ IRQ/IRQ_tb.v
+ MULT/MULT.v
+ FSM/FSM.v
+ mriscvcore.v
+ REG_FILE/REG_FILE.v
+ MEMORY_INTERFACE/MEMORY_INTERFACE.v
+ UTILITIES/UTILITY.v
+ ALU/ALU_tb.v
+ ALU/ALU.v
+ DECO_INSTR/DECO_INSTR_tb.v
+ DECO_INSTR/DECO_INSTR.v
+file_type = verilogSource
+
+[fileset tb]
+files =
+ firmware.hex[is_include_file]
+ mriscvcore_tb.v
+file_type = verilogSource
+
+[simulator]
+toplevel = mriscvcore_tb
+
+[parameter memory_file]
+datatype    = file
+default     = ../src/mriscvcore_0/firmware.hex
+description = Initial memory contents (in verilog hex format)
+paramtype   = vlogparam
+scope       = private
+
+[parameter verbose]
+datatype    = int
+default     = 0
+description = Enable verbose memory logging (0 = disable)
+paramtype   = vlogparam
+scope       = private
