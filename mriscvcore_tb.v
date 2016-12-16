@@ -1,9 +1,9 @@
 `timescale 1 ns / 1 ps
- `define VERBOSE
  `define AXI_TEST
 
 module mriscvcore_tb
-  #(parameter memory_file = "firmware.hex");
+  #(parameter memory_file = "firmware.hex",
+    parameter verbose     = 1);
 
 	reg clk = 1;
 	reg resetn = 0;
@@ -135,9 +135,9 @@ module mriscvcore_tb
 	end endtask
 
 	task handle_axi_rvalid; begin
-`ifdef VERBOSE
+if (verbose) begin
 		$display("RD: ADDR=%08x DATA=%08x%s", latched_raddr, memory[latched_raddr >> 2], latched_rinsn ? " INSN" : "");
-`endif
+end
 		if (latched_raddr < 64*1024) begin
 			mem_axi_rdata <= memory[latched_raddr >> 2];
 			mem_axi_rvalid <= 1;
@@ -149,10 +149,10 @@ module mriscvcore_tb
 	end endtask
 
 	task handle_axi_bvalid; begin
-`ifdef VERBOSE
+if (verbose) begin
 		$display("WR: ADDR=%08x DATA=%08x STRB=%04b", latched_waddr, latched_wdata, latched_wstrb);
 		if (latched_waddr == 0) $finish;
-`endif
+end
 		if (latched_waddr < 64*1024) begin
 			if (latched_wstrb[0]) memory[latched_waddr >> 2][ 7: 0] <= latched_wdata[ 7: 0];
 			if (latched_wstrb[1]) memory[latched_waddr >> 2][15: 8] <= latched_wdata[15: 8];
@@ -166,15 +166,15 @@ module mriscvcore_tb
 				is_o <= 1'b0;
 			if(latched_wdata == 75 && is_o == 1'b1)
 				is_ok <= 1'b1;
-`ifdef VERBOSE
+if (verbose) begin
 			if (32 <= latched_wdata && latched_wdata < 128)
 				$display("OUT: '%c'", latched_wdata);
 			else
 				$display("OUT: %3d", latched_wdata);
-`else
+end else begin
 			$write("%c", latched_wdata);
 			$fflush();
-`endif
+end
 		end else begin
 			$display("OUT-OF-BOUNDS MEMORY WRITE TO %08x", latched_waddr);
 			$finish;
