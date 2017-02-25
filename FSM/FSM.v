@@ -52,8 +52,8 @@ module FSM
 	reg		[3:0] state;
 	
 	// Declare states
-	parameter S0_fetch = 0, S1_decode = 1, S2_exec = 2, S3_memory = 3, S4_trap = 3,
-			  SW0_fetch_wait = 4, SW3_mem_wait = 5;
+	parameter S0_fetch = 0, S1_decode = 1, S2_exec = 2, S3_memory = 3, S4_trap = 4,
+			  SW0_fetch_wait = 5, SW3_mem_wait = 6;
 	
 	// Output depends only on the state
 	always @ (state) begin

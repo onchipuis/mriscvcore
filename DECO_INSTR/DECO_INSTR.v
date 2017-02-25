@@ -8,11 +8,12 @@ module DECO_INSTR(
     output reg [4:0] rs2i,
     output reg [4:0] rdi,
     output reg [31:0] imm,
-    output reg  [11:0] code
+    output reg  [11:0] code,
+	output reg [11:0] codif
      );
      
     reg [31:0] immr;
-    reg [11:0] codif;
+
     always @(posedge clk) begin
     	imm <= immr;
     	code <= codif;

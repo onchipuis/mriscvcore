@@ -140,26 +140,32 @@ module ALU #(
 		    12'b001010110011:   begin //srl
                                 oper2 = rs2;
                                 is_rd_nr = sl_ok;
+                                is_inst_nr = sl_ok;
                                 end
             12'b001010010011:   begin //srli
                                 oper2 = imm;
                                 is_rd_nr = sl_ok;
+                                is_inst_nr = sl_ok;
                                 end                    
 			12'b000010110011:   begin //sll
                                 oper2 = rs2;
                                 is_rd_nr = sl_ok;
+                                is_inst_nr = sl_ok;
                                 end
             12'b000010010011:   begin //slli
                                 oper2 = imm;
                                 is_rd_nr = sl_ok;
+                                is_inst_nr = sl_ok;
                                 end
             12'b101010110011:   begin //sra
                                 oper2 = rs2;
                                 is_rd_nr = sl_ok;
+                                is_inst_nr = sl_ok;
                                 end
             12'b011010010011:   begin //srai
                                 oper2 = imm;
                                 is_rd_nr = sl_ok;
+                                is_inst_nr = sl_ok;
                                 end
 			default:			begin // NO INSTRUCTION
                                 oper2 = 'bx;
@@ -191,17 +197,17 @@ module ALU #(
 				    AND_Alu <= rs1 & oper2;
 				    XOR_Alu <= rs1 ^ oper2;	
 				    OR_Alu  <= rs1 | oper2;
-				    SLT_Alu <= rs1 < oper2;
-				    SLTU_Alu <= $signed(rs1) < $signed(oper2);
+				    SLT_Alu <= $signed(rs1) < $signed(oper2);
+				    SLTU_Alu <= rs1 < oper2;
 				end
 			end
 			always @* begin	 
 				// COMPARE
 				BEQ_Alu = rs1 == oper2;
 				BNE_Alu = !BEQ_Alu;
-				BGE_Alu = rs1 >= oper2;
+				BGE_Alu = $signed(rs1) >= $signed(oper2);
 				BLT_Alu = !BGE_Alu;
-				BGEU_Alu = $signed(rs1) >=  $signed(oper2);
+				BGEU_Alu = rs1 >=  oper2;
 				BLTU_Alu = !BGEU_Alu;
 			end
 		end else begin
@@ -214,16 +220,16 @@ module ALU #(
 				AND_Alu = rs1 & oper2;
 				XOR_Alu = rs1 ^ oper2;	
 				OR_Alu  = rs1 | oper2;
-				SLT_Alu = rs1 < oper2;
-				SLTU_Alu = $signed(rs1) < $signed(oper2);
+				SLT_Alu = $signed(rs1) < $signed(oper2);
+				SLTU_Alu = rs1 < oper2;
 				
 				// COMPARE
 				BEQ_Alu = rs1 == oper2;
 				BNE_Alu = !BEQ_Alu;
-				BGE_Alu = rs1 >= oper2;
-				BLT_Alu = !BGE_Alu;
-				BGEU_Alu = $signed(rs1) >=  $signed(oper2);
-				BLTU_Alu = !BGEU_Alu;
+				BLT_Alu = $signed(rs1) < $signed(oper2);
+				BGE_Alu = !BLT_Alu;
+				BLTU_Alu = rs1 < oper2;
+				BGEU_Alu = !BLTU_Alu;
 			end
 		end
 	endgenerate

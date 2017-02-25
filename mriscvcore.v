@@ -42,6 +42,7 @@ module mriscvcore(
 // Data Buses
 wire [31:0] rd, rs1, rs2, imm, pc, inst;
 wire [11:0] code;
+wire [11:0] codif;
 
 // Auxiliars
 wire [4:0] rs1i, rs2i, rdi;
@@ -56,7 +57,7 @@ wire sign_mem, en_mem, busy_mem, done_mem, align_mem;
 //SIGNALS DECO INST
 wire enableDec;	
 //SIGNALS MULT
-wire enable_mul, done_mul;
+wire enable_mul, done_mul, is_inst_mul;
 //SIGNALS ALU
 wire cmp, carry, enable_alu, is_inst_alu, is_rd_alu;
 //SIGNALS UTILITY
@@ -102,7 +103,7 @@ MEMORY_INTERFACE MEMORY_INTERFACE_inst(
 	// To FSM
     .W_R(W_R_mem),
     .wordsize(wordsize_mem),
-	.signo(signo_mem),
+	.signo(sign_mem),
     .enable(en_mem),
 	.busy(busy_mem), 
 	.done(done_mem),
@@ -119,7 +120,8 @@ DECO_INSTR DECO_INSTR_inst(
 	.rs2i(rs2i),
 	.rdi(rdi),
 	.imm(imm),
-	.code(code)
+	.code(code),
+	.codif(codif)
 	);
 
 REG_FILE REG_FILE_inst(
@@ -180,6 +182,7 @@ MULT MULT_inst(
 	.rs2(rs2),
 	.rd(rd),
 	.Enable(enable_mul),
+	.is_oper(is_inst_mul),
 	.Done(done_mul),
 	.codif(code)
 	);
@@ -213,7 +216,7 @@ FSM FSM_inst
 	.reset(rstn),
 	
 	// Auxiliars from DATAPATH
-	.codif(code),
+	.codif(codif),
 	
 	// Inputs from DATAPATH
 	.busy_mem(busy_mem), 
@@ -238,7 +241,7 @@ FSM FSM_inst
 	assign enable_alu = enable_exec;
 	
 	// Done Assign
-	assign done_exec = is_inst_util | is_inst_alu | done_mul;
+	assign done_exec = is_inst_util | is_inst_alu | (done_mul & is_inst_mul);
 	
 	// Is exec assign
 	assign is_exec = ~(&(code));

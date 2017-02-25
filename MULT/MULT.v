@@ -106,6 +106,7 @@ module MULT(input clk,reset,Enable,
 	input [31:0] rs1,rs2,
 	input [11:0] codif,
 	output [31:0] rd,
+	output reg is_oper,
 	output reg Done);
 
 	localparam COUNT_BIT = 5;
@@ -127,7 +128,7 @@ module MULT(input clk,reset,Enable,
 	reg [11:0] Op;
 	wire EnableMul;
 	wire Ready;
-	reg is_oper;
+	//reg is_oper;
 
 
 	FSM_Booth u1 (.clk(clk),.reset(reset),.OutFSM(OutFSM1),.cont(cont1),.Enable(EnableMul)); //FSM1 (X1Y1)
@@ -195,7 +196,7 @@ module MULT(input clk,reset,Enable,
 	end
 	assign rd = is_oper?srd:32'hzzzzzzzz;
 	
-	assign EnableMul = X1==0&&X0==0&&Y1==0&&Y0==0 ? 1'b0 : Enable;
+	assign EnableMul = /*X1==0&&X0==0&&Y1==0&&Y0==0 ? 1'b0 :*/ (Enable & is_oper);
 	//Salida Algoritmo KARATSUBA 
 	assign Ready = OutFSM1[2]==0&&OutFSM2[2]==0&&OutFSM3[2]==0;
 	assign NZ2 = -$signed(Z2);
@@ -208,13 +209,13 @@ module MULT(input clk,reset,Enable,
 	
 
 	always@ (posedge clk) begin
-		if(is_oper) begin
-			Done = 0;
-			rdu = 64'b0;
-		end else if(Ready) begin
+		if(Ready) begin
 			if(sig) rdu = ~Out+1;
 			else rdu = Out;
 			Done = 1;
+		end else if(is_oper) begin
+			Done = 0;
+			rdu = 64'b0;
 		end	else begin
 			rdu = 64'b0;
 			Done = 0;

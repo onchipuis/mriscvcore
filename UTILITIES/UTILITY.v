@@ -88,7 +88,7 @@ module UTILITY(
 			PC_N = PC_BRANCH;							// BXX 
 		end else begin
 			case (opcode)
-				12'b000001100111: PC_N = rs1;			// JALR
+				12'b000001100111: PC_N = rs1+imm;		// JALR
 				12'b000001101111: PC_N = PC_SALTOS;		// JAL
 				12'b001110011000: PC_N = irr_ret;		// RETIRQ
 				default: 		  PC_N = PC_ORIG;		// Advance the program counter

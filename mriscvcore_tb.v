@@ -1,6 +1,6 @@
 `timescale 1 ns / 1 ps
- `define VERBOSE
- `define AXI_TEST
+ //`define VERBOSE
+ //`define AXI_TEST
 
 module mriscvcore_tb;
 
@@ -238,12 +238,12 @@ module mriscvcore_tb;
 			$dumpfile("mriscvcore_tb.vcd");
 			$dumpvars(0, mriscvcore_tb);
 		end
-		repeat (1000000) begin
+		repeat (10000000) begin
 		  @(posedge clk);
-		  if(is_ok) begin
+		  /*if(is_ok) begin
 		    $display("Program terminated sucesfully");
 		    $finish;
-		  end
+		  end*/
 		end
 		$display("TIMEOUT");
 		$finish;
