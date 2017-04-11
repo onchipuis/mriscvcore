@@ -183,7 +183,7 @@ module mriscvcore_tb;
 		latched_wdata_en = 0;
 	end endtask
 
-	always @(negedge clk) begin
+	always @(posedge clk) begin
 		if (mem_axi_arvalid && !(latched_raddr_en || fast_raddr) && async_axi_transaction[0]) handle_axi_arvalid;
 		if (mem_axi_awvalid && !(latched_waddr_en || fast_waddr) && async_axi_transaction[1]) handle_axi_awvalid;
 		if (mem_axi_wvalid  && !(latched_wdata_en || fast_wdata) && async_axi_transaction[2]) handle_axi_wvalid;

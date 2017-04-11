@@ -130,6 +130,7 @@ module MEMORY_INTERFACE(
 					if(AWready && !Wready)                  nexstate = SW2;
 					else if(!AWready && Wready)             nexstate = SW1;
 					else if(AWready && Wready && !Bvalid)   nexstate = SWB;
+					else if(AWready && Wready && Bvalid)    nexstate = reposo;
 				end
 
 				SW1 : begin
