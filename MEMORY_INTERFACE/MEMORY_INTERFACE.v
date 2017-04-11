@@ -55,9 +55,10 @@ module MEMORY_INTERFACE(
 	parameter SR1 		= 4'd2;
 	parameter SR2 		= 4'd3;
 	parameter inicioW 	= 4'd4;
-	parameter SW1 		= 4'd5;
-	parameter SW2		= 4'd6;
-	parameter SWB 		= 4'd7;
+	parameter SW0 		= 4'd5;
+	parameter SW1 		= 4'd6;
+	parameter SW2		= 4'd7;
+	parameter SWB 		= 4'd8;
 	
 	// Next state and output logic
 	always @* begin
@@ -76,15 +77,18 @@ module MEMORY_INTERFACE(
 					if ( (W_R[1]==1'b1 || W_R==2'b01) && enable==1 ) begin
 						ARvalid	= 1'b1;     // Pre-issue the ARvalid
 						RReady = 1'b1;      // There is no problem if this is issued since before
-						if(ARready && Rvalid) begin en_read = 1'b1; busy = 1'b1; end     // In the same cycle sync read
-						else if(ARready && !Rvalid) begin nexstate = SR2; busy = 1'b1; end // Wait for Rvalid
-						else begin nexstate = SR1; busy = 1'b1; end
+						busy = 1'b1;
+						if(ARready && Rvalid) begin en_read = 1'b1; end     // In the same cycle sync read
+						else if(ARready && !Rvalid) begin nexstate = SR2; end // Wait for Rvalid
+						else begin nexstate = SR1; end
 					// If writing?
 					end else if (W_R==2'b00 && enable==1) begin
 		                AWvalid	= 1'b1;     // Pre-issue AWvalid
 		                Wvalid = 1'b1;      // Pre-issue Wvalid
 		                Bready = 1'b1;      // There is no problem if this is issued since before
-		                if(AWready && !Wready)                  nexstate = SW2;
+						busy = 1'b1;
+		                if(!AWready && !Wready)                 nexstate = SW0;
+		                else if(AWready && !Wready)             nexstate = SW2;
 		                else if(!AWready && Wready)             nexstate = SW1;
 		                else if(AWready && Wready && !Bvalid)   nexstate = SWB;
 		                //else if(AWready && Wready && Bvalid)  // Action not necesary
@@ -96,10 +100,11 @@ module MEMORY_INTERFACE(
 				SR1 : begin
 					busy = 1'b1;
 					RReady = 1'b1;
-					if(ARvalid && Rvalid) begin
+					ARvalid	= 1'b1;
+					if(ARready && Rvalid) begin
 						en_read = 1'b1;     // In the same cycle sync read
 						nexstate = reposo;
-					end else if(ARvalid && !Rvalid) begin
+					end else if(ARready && !Rvalid) begin
 						nexstate = SR2;
 					end else begin
 						nexstate = SR1;
@@ -117,8 +122,19 @@ module MEMORY_INTERFACE(
 					end
 				end
 
+				SW0 : begin
+					busy = 1'b1;
+					AWvalid = 1'b1;
+					Wvalid = 1'b1;
+					Bready = 1'b1;      // There is no problem if this is issued since before
+					if(AWready && !Wready)                  nexstate = SW2;
+					else if(!AWready && Wready)             nexstate = SW1;
+					else if(AWready && Wready && !Bvalid)   nexstate = SWB;
+				end
+
 				SW1 : begin
 					busy = 1'b1;
+					AWvalid = 1'b1;
 					Wvalid = 1'b1;
 					Bready = 1'b1;      // There is no problem if this is issued since before
 					if (Wready) begin
@@ -131,6 +147,7 @@ module MEMORY_INTERFACE(
 				SW2 : begin
 					busy = 1'b1;
 					AWvalid = 1'b1;
+					Wvalid = 1'b1;
 					Bready = 1'b1;      // There is no problem if this is issued since before
 					if (AWready) begin
 						nexstate=SWB;
