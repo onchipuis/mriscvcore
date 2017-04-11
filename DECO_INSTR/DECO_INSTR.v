@@ -102,13 +102,21 @@ module DECO_INSTR(
 				codif = {inst[30],inst[25] ,inst[14:12] , inst[6:0]};
 			end
 		end
-		7'b1110011: begin // ECALL, EBREAK, CSRRX
-			if(inst[14:12] != 3'b100) begin
+		7'b1110011: begin // ECALL, EBREAK
+			if(inst[14:12] == 3'b000) begin
 				// Quite the same as arith immr
 				rdi = inst[11:7];
 				rs1i = inst[19:15];		// WARN: This can be also zimm for CSRRX calls
 				rs2i = {5{1'b0}};
 				immr = {{20{1'b0}},inst[31:20]}; 
+				codif = {2'b0000 ,inst[20] , inst[6:0]};
+			end else if(inst[14:12] != 3'b100) begin // CSRRX
+				// Quite the same as arith immr
+				rdi = inst[11:7];
+				rs1i = inst[19:15];		// WARN: This can be also zimm for CSRRX calls
+				rs2i = {5{1'b0}};
+				immr = {{20{1'b0}},inst[31:20]}; 
+
 				codif = {2'b00 ,inst[14:12] , inst[6:0]};
 			end
 		end
