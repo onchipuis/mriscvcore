@@ -53,218 +53,218 @@ Linker script and memory map
                 0x00000000000001b4                mulh_ret
                 0x00000000000001bc                mulhsu_ret
                 0x00000000000001c4                simple_ret
- .text          0x0000000000000204      0x314 tests/addi.o
-                0x0000000000000204                addi
- .text          0x0000000000000518      0x568 tests/add.o
-                0x0000000000000518                add
- .text          0x0000000000000a80      0x24c tests/andi.o
-                0x0000000000000a80                andi
- .text          0x0000000000000ccc      0x540 tests/and.o
-                0x0000000000000ccc                and
- *fill*         0x000000000000120c        0x4 
- .text          0x0000000000001210       0xd4 tests/auipc.o
-                0x0000000000001210                auipc
- .text          0x00000000000012e4      0x348 tests/beq.o
-                0x00000000000012e4                beq
- .text          0x000000000000162c      0x3a8 tests/bge.o
-                0x000000000000162c                bge
- .text          0x00000000000019d4      0x3e0 tests/bgeu.o
-                0x00000000000019d4                bgeu
- .text          0x0000000000001db4      0x348 tests/blt.o
-                0x0000000000001db4                blt
- .text          0x00000000000020fc      0x380 tests/bltu.o
-                0x00000000000020fc                bltu
- .text          0x000000000000247c      0x34c tests/bne.o
-                0x000000000000247c                bne
- .text          0x00000000000027c8      0x18c tests/jalr.o
-                0x00000000000027c8                jalr
- .text          0x0000000000002954       0xe0 tests/jal.o
-                0x0000000000002954                jal
- .text          0x0000000000002a34       0xc4 tests/j.o
-                0x0000000000002a34                j
- .text          0x0000000000002af8      0x2d4 tests/lb.o
-                0x0000000000002af8                lb
- .text          0x0000000000002dcc      0x2d4 tests/lbu.o
-                0x0000000000002dcc                lbu
- .text          0x00000000000030a0      0x2f4 tests/lh.o
-                0x00000000000030a0                lh
- .text          0x0000000000003394      0x308 tests/lhu.o
-                0x0000000000003394                lhu
- .text          0x000000000000369c       0xe8 tests/lui.o
-                0x000000000000369c                lui
- .text          0x0000000000003784      0x314 tests/lw.o
-                0x0000000000003784                lw
- .text          0x0000000000003a98      0x554 tests/mulh.o
-                0x0000000000003a98                mulh
- .text          0x0000000000003fec      0x554 tests/mulhsu.o
-                0x0000000000003fec                mulhsu
- .text          0x0000000000004540      0x554 tests/mulhu.o
-                0x0000000000004540                mulhu
- .text          0x0000000000004a94      0x550 tests/mul.o
-                0x0000000000004a94                mul
- .text          0x0000000000004fe4      0x264 tests/ori.o
-                0x0000000000004fe4                ori
- .text          0x0000000000005248      0x54c tests/or.o
-                0x0000000000005248                or
- .text          0x0000000000005794      0x47c tests/sb.o
-                0x0000000000005794                sb
- .text          0x0000000000005c10      0x500 tests/sh.o
-                0x0000000000005c10                sh
- .text          0x0000000000006110       0x54 tests/simple.o
-                0x0000000000006110                simple
- .text          0x0000000000006164      0x310 tests/slli.o
-                0x0000000000006164                slli
- .text          0x0000000000006474      0x5f4 tests/sll.o
-                0x0000000000006474                sll
- .text          0x0000000000006a68      0x300 tests/slti.o
-                0x0000000000006a68                slti
- .text          0x0000000000006d68      0x550 tests/slt.o
-                0x0000000000006d68                slt
- .text          0x00000000000072b8      0x344 tests/srai.o
-                0x00000000000072b8                srai
- .text          0x00000000000075fc      0x624 tests/sra.o
-                0x00000000000075fc                sra
- .text          0x0000000000007c20      0x340 tests/srli.o
-                0x0000000000007c20                srli
- .text          0x0000000000007f60      0x644 tests/srl.o
-                0x0000000000007f60                srl
- .text          0x00000000000085a4      0x548 tests/sub.o
-                0x00000000000085a4                sub
- .text          0x0000000000008aec      0x50c tests/sw.o
-                0x0000000000008aec                sw
- .text          0x0000000000008ff8      0x270 tests/xori.o
-                0x0000000000008ff8                xori
- .text          0x0000000000009268      0x548 tests/xor.o
-                0x0000000000009268                xor
+ .text          0x0000000000000204      0x270 tests/xori.o
+                0x0000000000000204                xori
+ .text          0x0000000000000474      0x548 tests/xor.o
+                0x0000000000000474                xor
+ .text          0x00000000000009bc      0x54c tests/or.o
+                0x00000000000009bc                or
+ .text          0x0000000000000f08      0x500 tests/sh.o
+                0x0000000000000f08                sh
+ .text          0x0000000000001408      0x548 tests/sub.o
+                0x0000000000001408                sub
+ .text          0x0000000000001950      0x344 tests/srai.o
+                0x0000000000001950                srai
+ .text          0x0000000000001c94      0x2f4 tests/lh.o
+                0x0000000000001c94                lh
+ .text          0x0000000000001f88      0x644 tests/srl.o
+                0x0000000000001f88                srl
+ .text          0x00000000000025cc      0x380 tests/bltu.o
+                0x00000000000025cc                bltu
+ .text          0x000000000000294c       0xe8 tests/lui.o
+                0x000000000000294c                lui
+ .text          0x0000000000002a34      0x554 tests/mulhu.o
+                0x0000000000002a34                mulhu
+ .text          0x0000000000002f88      0x550 tests/mul.o
+                0x0000000000002f88                mul
+ .text          0x00000000000034d8      0x300 tests/slti.o
+                0x00000000000034d8                slti
+ .text          0x00000000000037d8      0x624 tests/sra.o
+                0x00000000000037d8                sra
+ .text          0x0000000000003dfc      0x3e0 tests/bgeu.o
+                0x0000000000003dfc                bgeu
+ .text          0x00000000000041dc      0x348 tests/beq.o
+                0x00000000000041dc                beq
+ *fill*         0x0000000000004524        0x4 
+ .text          0x0000000000004528       0xd4 tests/auipc.o
+                0x0000000000004528                auipc
+ .text          0x00000000000045fc      0x50c tests/sw.o
+                0x00000000000045fc                sw
+ .text          0x0000000000004b08      0x18c tests/jalr.o
+                0x0000000000004b08                jalr
+ .text          0x0000000000004c94      0x314 tests/lw.o
+                0x0000000000004c94                lw
+ .text          0x0000000000004fa8      0x24c tests/andi.o
+                0x0000000000004fa8                andi
+ .text          0x00000000000051f4      0x568 tests/add.o
+                0x00000000000051f4                add
+ .text          0x000000000000575c      0x550 tests/slt.o
+                0x000000000000575c                slt
+ .text          0x0000000000005cac      0x2d4 tests/lbu.o
+                0x0000000000005cac                lbu
+ .text          0x0000000000005f80      0x2d4 tests/lb.o
+                0x0000000000005f80                lb
+ .text          0x0000000000006254       0x54 tests/simple.o
+                0x0000000000006254                simple
+ .text          0x00000000000062a8      0x47c tests/sb.o
+                0x00000000000062a8                sb
+ .text          0x0000000000006724      0x5f4 tests/sll.o
+                0x0000000000006724                sll
+ .text          0x0000000000006d18      0x348 tests/blt.o
+                0x0000000000006d18                blt
+ .text          0x0000000000007060      0x3a8 tests/bge.o
+                0x0000000000007060                bge
+ .text          0x0000000000007408      0x264 tests/ori.o
+                0x0000000000007408                ori
+ .text          0x000000000000766c      0x554 tests/mulh.o
+                0x000000000000766c                mulh
+ .text          0x0000000000007bc0       0xe0 tests/jal.o
+                0x0000000000007bc0                jal
+ .text          0x0000000000007ca0      0x314 tests/addi.o
+                0x0000000000007ca0                addi
+ .text          0x0000000000007fb4      0x540 tests/and.o
+                0x0000000000007fb4                and
+ .text          0x00000000000084f4      0x308 tests/lhu.o
+                0x00000000000084f4                lhu
+ .text          0x00000000000087fc      0x310 tests/slli.o
+                0x00000000000087fc                slli
+ .text          0x0000000000008b0c      0x34c tests/bne.o
+                0x0000000000008b0c                bne
+ .text          0x0000000000008e58       0xc4 tests/j.o
+                0x0000000000008e58                j
+ .text          0x0000000000008f1c      0x554 tests/mulhsu.o
+                0x0000000000008f1c                mulhsu
+ .text          0x0000000000009470      0x340 tests/srli.o
+                0x0000000000009470                srli
  *(*)
  .data          0x00000000000097b0        0x0 firmware/start.o
  .bss           0x00000000000097b0        0x0 firmware/start.o
  .rela.text     0x00000000000097b0        0x0 firmware/start.o
- .data          0x00000000000097b0        0x0 tests/addi.o
- .bss           0x00000000000097b0        0x0 tests/addi.o
- .data          0x00000000000097b0        0x0 tests/add.o
- .bss           0x00000000000097b0        0x0 tests/add.o
- .data          0x00000000000097b0        0x0 tests/andi.o
- .bss           0x00000000000097b0        0x0 tests/andi.o
- .data          0x00000000000097b0        0x0 tests/and.o
- .bss           0x00000000000097b0        0x0 tests/and.o
- .data          0x00000000000097b0        0x0 tests/auipc.o
- .bss           0x00000000000097b0        0x0 tests/auipc.o
- .data          0x00000000000097b0        0x0 tests/beq.o
- .bss           0x00000000000097b0        0x0 tests/beq.o
- .data          0x00000000000097b0        0x0 tests/bge.o
- .bss           0x00000000000097b0        0x0 tests/bge.o
- .data          0x00000000000097b0        0x0 tests/bgeu.o
- .bss           0x00000000000097b0        0x0 tests/bgeu.o
- .data          0x00000000000097b0        0x0 tests/blt.o
- .bss           0x00000000000097b0        0x0 tests/blt.o
- .data          0x00000000000097b0        0x0 tests/bltu.o
- .bss           0x00000000000097b0        0x0 tests/bltu.o
- .data          0x00000000000097b0        0x0 tests/bne.o
- .bss           0x00000000000097b0        0x0 tests/bne.o
- .data          0x00000000000097b0        0x0 tests/jalr.o
- .bss           0x00000000000097b0        0x0 tests/jalr.o
- .data          0x00000000000097b0        0x0 tests/jal.o
- .bss           0x00000000000097b0        0x0 tests/jal.o
- .data          0x00000000000097b0        0x0 tests/j.o
- .bss           0x00000000000097b0        0x0 tests/j.o
- .data          0x00000000000097b0        0x4 tests/lb.o
- .bss           0x00000000000097b4        0x0 tests/lb.o
- .data          0x00000000000097b4        0x4 tests/lbu.o
- .bss           0x00000000000097b8        0x0 tests/lbu.o
- .data          0x00000000000097b8        0x8 tests/lh.o
- .bss           0x00000000000097c0        0x0 tests/lh.o
- .data          0x00000000000097c0        0x8 tests/lhu.o
- .bss           0x00000000000097c8        0x0 tests/lhu.o
- .data          0x00000000000097c8        0x0 tests/lui.o
- .bss           0x00000000000097c8        0x0 tests/lui.o
- .data          0x00000000000097c8       0x10 tests/lw.o
- .bss           0x00000000000097d8        0x0 tests/lw.o
- .data          0x00000000000097d8        0x0 tests/mulh.o
- .bss           0x00000000000097d8        0x0 tests/mulh.o
- .data          0x00000000000097d8        0x0 tests/mulhsu.o
- .bss           0x00000000000097d8        0x0 tests/mulhsu.o
- .data          0x00000000000097d8        0x0 tests/mulhu.o
- .bss           0x00000000000097d8        0x0 tests/mulhu.o
- .data          0x00000000000097d8        0x0 tests/mul.o
- .bss           0x00000000000097d8        0x0 tests/mul.o
- .data          0x00000000000097d8        0x0 tests/ori.o
- .bss           0x00000000000097d8        0x0 tests/ori.o
- .data          0x00000000000097d8        0x0 tests/or.o
- .bss           0x00000000000097d8        0x0 tests/or.o
- .data          0x00000000000097d8        0xa tests/sb.o
- .bss           0x00000000000097e2        0x0 tests/sb.o
- *fill*         0x00000000000097e2        0x2 
- .data          0x00000000000097e4       0x14 tests/sh.o
- .bss           0x00000000000097f8        0x0 tests/sh.o
- .data          0x00000000000097f8        0x0 tests/simple.o
- .bss           0x00000000000097f8        0x0 tests/simple.o
- .data          0x00000000000097f8        0x0 tests/slli.o
- .bss           0x00000000000097f8        0x0 tests/slli.o
- .data          0x00000000000097f8        0x0 tests/sll.o
- .bss           0x00000000000097f8        0x0 tests/sll.o
- .data          0x00000000000097f8        0x0 tests/slti.o
- .bss           0x00000000000097f8        0x0 tests/slti.o
- .data          0x00000000000097f8        0x0 tests/slt.o
- .bss           0x00000000000097f8        0x0 tests/slt.o
- .data          0x00000000000097f8        0x0 tests/srai.o
- .bss           0x00000000000097f8        0x0 tests/srai.o
- .data          0x00000000000097f8        0x0 tests/sra.o
- .bss           0x00000000000097f8        0x0 tests/sra.o
- .data          0x00000000000097f8        0x0 tests/srli.o
- .bss           0x00000000000097f8        0x0 tests/srli.o
- .data          0x00000000000097f8        0x0 tests/srl.o
- .bss           0x00000000000097f8        0x0 tests/srl.o
- .data          0x00000000000097f8        0x0 tests/sub.o
- .bss           0x00000000000097f8        0x0 tests/sub.o
- .data          0x00000000000097f8       0x28 tests/sw.o
- .bss           0x0000000000009820        0x0 tests/sw.o
- .data          0x0000000000009820        0x0 tests/xori.o
- .bss           0x0000000000009820        0x0 tests/xori.o
- .data          0x0000000000009820        0x0 tests/xor.o
- .bss           0x0000000000009820        0x0 tests/xor.o
+ .data          0x00000000000097b0        0x0 tests/xori.o
+ .bss           0x00000000000097b0        0x0 tests/xori.o
+ .data          0x00000000000097b0        0x0 tests/xor.o
+ .bss           0x00000000000097b0        0x0 tests/xor.o
+ .data          0x00000000000097b0        0x0 tests/or.o
+ .bss           0x00000000000097b0        0x0 tests/or.o
+ .data          0x00000000000097b0       0x14 tests/sh.o
+ .bss           0x00000000000097c4        0x0 tests/sh.o
+ .data          0x00000000000097c4        0x0 tests/sub.o
+ .bss           0x00000000000097c4        0x0 tests/sub.o
+ .data          0x00000000000097c4        0x0 tests/srai.o
+ .bss           0x00000000000097c4        0x0 tests/srai.o
+ .data          0x00000000000097c4        0x8 tests/lh.o
+ .bss           0x00000000000097cc        0x0 tests/lh.o
+ .data          0x00000000000097cc        0x0 tests/srl.o
+ .bss           0x00000000000097cc        0x0 tests/srl.o
+ .data          0x00000000000097cc        0x0 tests/bltu.o
+ .bss           0x00000000000097cc        0x0 tests/bltu.o
+ .data          0x00000000000097cc        0x0 tests/lui.o
+ .bss           0x00000000000097cc        0x0 tests/lui.o
+ .data          0x00000000000097cc        0x0 tests/mulhu.o
+ .bss           0x00000000000097cc        0x0 tests/mulhu.o
+ .data          0x00000000000097cc        0x0 tests/mul.o
+ .bss           0x00000000000097cc        0x0 tests/mul.o
+ .data          0x00000000000097cc        0x0 tests/slti.o
+ .bss           0x00000000000097cc        0x0 tests/slti.o
+ .data          0x00000000000097cc        0x0 tests/sra.o
+ .bss           0x00000000000097cc        0x0 tests/sra.o
+ .data          0x00000000000097cc        0x0 tests/bgeu.o
+ .bss           0x00000000000097cc        0x0 tests/bgeu.o
+ .data          0x00000000000097cc        0x0 tests/beq.o
+ .bss           0x00000000000097cc        0x0 tests/beq.o
+ .data          0x00000000000097cc        0x0 tests/auipc.o
+ .bss           0x00000000000097cc        0x0 tests/auipc.o
+ .data          0x00000000000097cc       0x28 tests/sw.o
+ .bss           0x00000000000097f4        0x0 tests/sw.o
+ .data          0x00000000000097f4        0x0 tests/jalr.o
+ .bss           0x00000000000097f4        0x0 tests/jalr.o
+ .data          0x00000000000097f4       0x10 tests/lw.o
+ .bss           0x0000000000009804        0x0 tests/lw.o
+ .data          0x0000000000009804        0x0 tests/andi.o
+ .bss           0x0000000000009804        0x0 tests/andi.o
+ .data          0x0000000000009804        0x0 tests/add.o
+ .bss           0x0000000000009804        0x0 tests/add.o
+ .data          0x0000000000009804        0x0 tests/slt.o
+ .bss           0x0000000000009804        0x0 tests/slt.o
+ .data          0x0000000000009804        0x4 tests/lbu.o
+ .bss           0x0000000000009808        0x0 tests/lbu.o
+ .data          0x0000000000009808        0x4 tests/lb.o
+ .bss           0x000000000000980c        0x0 tests/lb.o
+ .data          0x000000000000980c        0x0 tests/simple.o
+ .bss           0x000000000000980c        0x0 tests/simple.o
+ .data          0x000000000000980c        0xa tests/sb.o
+ .bss           0x0000000000009816        0x0 tests/sb.o
+ *fill*         0x0000000000009816        0x2 
+ .data          0x0000000000009818        0x0 tests/sll.o
+ .bss           0x0000000000009818        0x0 tests/sll.o
+ .data          0x0000000000009818        0x0 tests/blt.o
+ .bss           0x0000000000009818        0x0 tests/blt.o
+ .data          0x0000000000009818        0x0 tests/bge.o
+ .bss           0x0000000000009818        0x0 tests/bge.o
+ .data          0x0000000000009818        0x0 tests/ori.o
+ .bss           0x0000000000009818        0x0 tests/ori.o
+ .data          0x0000000000009818        0x0 tests/mulh.o
+ .bss           0x0000000000009818        0x0 tests/mulh.o
+ .data          0x0000000000009818        0x0 tests/jal.o
+ .bss           0x0000000000009818        0x0 tests/jal.o
+ .data          0x0000000000009818        0x0 tests/addi.o
+ .bss           0x0000000000009818        0x0 tests/addi.o
+ .data          0x0000000000009818        0x0 tests/and.o
+ .bss           0x0000000000009818        0x0 tests/and.o
+ .data          0x0000000000009818        0x8 tests/lhu.o
+ .bss           0x0000000000009820        0x0 tests/lhu.o
+ .data          0x0000000000009820        0x0 tests/slli.o
+ .bss           0x0000000000009820        0x0 tests/slli.o
+ .data          0x0000000000009820        0x0 tests/bne.o
+ .bss           0x0000000000009820        0x0 tests/bne.o
+ .data          0x0000000000009820        0x0 tests/j.o
+ .bss           0x0000000000009820        0x0 tests/j.o
+ .data          0x0000000000009820        0x0 tests/mulhsu.o
+ .bss           0x0000000000009820        0x0 tests/mulhsu.o
+ .data          0x0000000000009820        0x0 tests/srli.o
+ .bss           0x0000000000009820        0x0 tests/srli.o
                 0x0000000000009820                end = .
 LOAD firmware/start.o
-LOAD tests/addi.o
-LOAD tests/add.o
-LOAD tests/andi.o
-LOAD tests/and.o
-LOAD tests/auipc.o
-LOAD tests/beq.o
-LOAD tests/bge.o
-LOAD tests/bgeu.o
-LOAD tests/blt.o
-LOAD tests/bltu.o
-LOAD tests/bne.o
-LOAD tests/jalr.o
-LOAD tests/jal.o
-LOAD tests/j.o
-LOAD tests/lb.o
-LOAD tests/lbu.o
-LOAD tests/lh.o
-LOAD tests/lhu.o
-LOAD tests/lui.o
-LOAD tests/lw.o
-LOAD tests/mulh.o
-LOAD tests/mulhsu.o
-LOAD tests/mulhu.o
-LOAD tests/mul.o
-LOAD tests/ori.o
-LOAD tests/or.o
-LOAD tests/sb.o
-LOAD tests/sh.o
-LOAD tests/simple.o
-LOAD tests/slli.o
-LOAD tests/sll.o
-LOAD tests/slti.o
-LOAD tests/slt.o
-LOAD tests/srai.o
-LOAD tests/sra.o
-LOAD tests/srli.o
-LOAD tests/srl.o
-LOAD tests/sub.o
-LOAD tests/sw.o
 LOAD tests/xori.o
 LOAD tests/xor.o
-LOAD /usr/local/riscv32i/lib/gcc/riscv32-unknown-elf/6.1.0/libgcc.a
+LOAD tests/or.o
+LOAD tests/sh.o
+LOAD tests/sub.o
+LOAD tests/srai.o
+LOAD tests/lh.o
+LOAD tests/srl.o
+LOAD tests/bltu.o
+LOAD tests/lui.o
+LOAD tests/mulhu.o
+LOAD tests/mul.o
+LOAD tests/slti.o
+LOAD tests/sra.o
+LOAD tests/bgeu.o
+LOAD tests/beq.o
+LOAD tests/auipc.o
+LOAD tests/sw.o
+LOAD tests/jalr.o
+LOAD tests/lw.o
+LOAD tests/andi.o
+LOAD tests/add.o
+LOAD tests/slt.o
+LOAD tests/lbu.o
+LOAD tests/lb.o
+LOAD tests/simple.o
+LOAD tests/sb.o
+LOAD tests/sll.o
+LOAD tests/blt.o
+LOAD tests/bge.o
+LOAD tests/ori.o
+LOAD tests/mulh.o
+LOAD tests/jal.o
+LOAD tests/addi.o
+LOAD tests/and.o
+LOAD tests/lhu.o
+LOAD tests/slli.o
+LOAD tests/bne.o
+LOAD tests/j.o
+LOAD tests/mulhsu.o
+LOAD tests/srli.o
+LOAD /opt/riscv32i/lib/gcc/riscv32-unknown-elf/6.1.0/libgcc.a
 OUTPUT(firmware/firmware.elf elf32-littleriscv)

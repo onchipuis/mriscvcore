@@ -70,9 +70,10 @@ module FSM
 			enable_pc_fsm <= 1'b0;
 			trap <= 1'b0;
 		end else
-			if(err)
+			if(err) begin
 				state <= S4_trap;
-			else
+			  trap <= 1'b1;
+			end else
 				case (state)
 					S0_fetch: begin
 					    if(!en_mem) begin

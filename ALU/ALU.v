@@ -45,7 +45,7 @@ module ALU #(
     
     reg [1:0] is_rd_reg;
     reg [1:0] is_inst_reg;
-    reg [1:0] en_reg;
+    reg en_reg;
     reg is_rd_nr, is_inst_nr;
     
     always @(posedge clk) begin
@@ -56,7 +56,7 @@ module ALU #(
         end else begin
             is_rd_reg <= {is_rd_reg[0],is_rd_nr};
             is_inst_reg <= {is_inst_reg[0],is_inst_nr};
-            en_reg <= {en_reg[0], en};
+            en_reg <= en;
         end
     end
     
@@ -199,7 +199,7 @@ module ALU #(
         (.clk(clk), .reset(reset), .rs1(rs1), .oper2(oper2), .BLTU_Alu(BLTU_Alu));
     // Shifts
     ALU_sXXx #(.REG_ALU(REG_ALU), .REG_OUT(REG_OUT)) ALU_sXXx_inst
-        (.clk(clk), .reset(reset), .rs1(rs1), .oper2(oper2), .en(en_reg[0]), .SRL_Alu(SRL_Alu), .SLL_Alu(SLL_Alu), .SRA_Alu(SRA_Alu), .sl_ok(sl_ok));
+        (.clk(clk), .reset(reset), .rs1(rs1), .oper2(oper2), .en(en_reg), .SRL_Alu(SRL_Alu), .SLL_Alu(SLL_Alu), .SRA_Alu(SRA_Alu), .sl_ok(sl_ok));
     
     // Always this result, there is no need to modularize this
     assign BNE_Alu = !BEQ_Alu;
@@ -355,7 +355,11 @@ module ALU #(
                                 carry = 0;
                                 cmp = 0;
                                 end
-            // NO DEFAULT ACTION
+            default:            begin
+                                OUT_Alu = 'bx;
+                                carry = 0;
+                                cmp = 0;
+                                end
         endcase
     end
     
@@ -369,7 +373,7 @@ module ALU #(
                 end
             end
         end else begin
-            always @* begin    
+            always @(OUT_Alu) begin    
                 OUT_Alu_rd = OUT_Alu; 
             end
         end
@@ -391,7 +395,7 @@ module ALU_add
     input reset,
     input [31:0] rs1,
     input [31:0] oper2,
-    output reg [31:0] ADD_Alu
+    output reg [32:0] ADD_Alu
     );
 
 generate 

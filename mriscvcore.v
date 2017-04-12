@@ -61,8 +61,6 @@ wire enable_mul, done_mul, is_inst_mul;
 //SIGNALS ALU
 wire cmp, carry, enable_alu, is_inst_alu, is_rd_alu;
 //SIGNALS UTILITY
-wire [31:0] irr_ret, irr_dest;
-wire irr;
 wire is_inst_util, is_rd_util;
 //SIGNALS FSM
 wire is_exec;
@@ -159,8 +157,8 @@ ALU ALU_inst(
 IRQ IRQ_inst(
     .rst(rstn),
     .clk(clk),
-    .savepc(savepc),
-    .en(en),
+    .savepc(1'b0),
+    .en(1'b0),
     .instr(code),
     .rs1(rs1),
     .rs2(rs2),
@@ -197,12 +195,12 @@ UTILITY UTILITY_inst(
     .imm(imm),
     .pc(pc),
     // FROM IRQ
-    .irr_ret(irr_ret),
-    .irr_dest(irr_dest),
+    .irr_ret(pc_c),
+    .irr_dest(pc_irq),
     // FROM ALU
     .branch(cmp),
     // FSM
-    .irr(irr),
+    .irr(1'b0),
     .enable_pc(enable_pc),
     .is_inst(is_inst_util),
     .is_rd(is_rd_util)
@@ -221,7 +219,7 @@ FSM FSM_inst
     // Inputs from DATAPATH
     .busy_mem(busy_mem), 
     .done_mem(done_mem),
-    .aligned_mem(aligned_mem),
+    .aligned_mem(align_mem),
     .done_exec(done_exec),
     .is_exec(is_exec),
     

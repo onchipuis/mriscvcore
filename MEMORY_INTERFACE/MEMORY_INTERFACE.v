@@ -24,12 +24,14 @@ module MEMORY_INTERFACE(
     output reg [31:0] AWdata,
     output reg [31:0] ARdata,
     output reg [31:0] Wdata,
-    output [31:0] rd,inst,
+    output [31:0] rd,
+    output reg [31:0] inst,
     output reg ARvalid,
     output reg RReady,
     output reg AWvalid,
     output reg Wvalid,
-    output reg [2:0] arprot,awprot,
+    output reg [2:0] arprot,
+    output reg [2:0] awprot,
     output reg Bready,
     output reg [3:0] Wstrb,
     output reg rd_en
@@ -41,7 +43,7 @@ module MEMORY_INTERFACE(
     reg [23:0] relleno24;
     reg [31:0] Rdataq,Wdataq;
     reg [3:0] Wstrbq;
-    reg [31:0] rdu,minstr,minstru;
+    reg [31:0] rdu;
     reg en_instr;
     reg en_read;
 ///////////////////////////////////////////////////////////////////////////////////
@@ -146,10 +148,10 @@ module MEMORY_INTERFACE(
                     //AWvalid = 1'b1;
                     Wvalid = 1'b1;
                     Bready = 1'b1;      // There is no problem if this is issued since before
-                    if (Wready && !Bready) begin
+                    if (Wready && !Bvalid) begin
                         nexstate=SWB;
                         busy = 1'b1;
-                    end else if(Wready && Bready) begin
+                    end else if(Wready && Bvalid) begin
                         nexstate=reposo;
                     end else begin
                         nexstate=SW1;
@@ -161,10 +163,10 @@ module MEMORY_INTERFACE(
                     AWvalid = 1'b1;
                     //Wvalid = 1'b1;
                     Bready = 1'b1;      // There is no problem if this is issued since before
-                    if (AWready && !Bready) begin
+                    if (AWready && !Bvalid) begin
                         nexstate=SWB;
                         busy = 1'b1;
-                    end else if(AWready && Bready) begin
+                    end else if(AWready && Bvalid) begin
                         nexstate=reposo;
                     end else begin
                         nexstate=SW2;
@@ -203,16 +205,15 @@ module MEMORY_INTERFACE(
     always @* begin
         // Default values
         en_instr     = 0;
-        rd_en         = 0;
-        awprot         = 3'b000;
-        AWdata        = rs1+imm;
-        arprot        = 3'b000;
-        ARdata        = rs1+imm;
-        align     = 0;
-        Wdataq        = 0;
-        Wstrbq        = 4'b0000;
-        minstru        = 0;
-        Rdataq        = 0;
+        rd_en        = 0;
+        awprot       = 3'b000;
+        AWdata       = rs1+imm;
+        arprot       = 3'b000;
+        ARdata       = rs1+imm;
+        align        = 1;
+        Wdataq       = 0;
+        Wstrbq       = 4'b0000;
+        Rdataq       = 0;
         relleno16    = 0;
         relleno24    = 0;
         
@@ -223,12 +224,12 @@ module MEMORY_INTERFACE(
                 AWdata = rs1+imm;
                 case (wordsize)
                     2'b10  : begin
-                        align=(AWdata[1:0]==2'b00)? 1:0;
+                        if(enable) align=(AWdata[1:0]==2'b00)? 1:0;
                         Wdataq=rs2;
                         Wstrbq=4'b1111;
                     end
                     2'b01  : begin
-                        align=(AWdata[0]==1'b0)? 1:0;
+                        if(enable) align=(AWdata[0]==1'b0)? 1:0;
                         Wstrbq = AWdata[1] ? 4'b1100 : 4'b0011;
                         Wdataq={2{rs2[15:0]}};
                     end
@@ -241,8 +242,7 @@ module MEMORY_INTERFACE(
             end
 
             2'b10,2'b11  : begin
-                en_instr=1;
-                minstru=Rdata_mem;
+                en_instr=1'b1;
                 AWdata=pc;
                 ARdata=pc;
                 arprot=3'b100;
@@ -255,12 +255,12 @@ module MEMORY_INTERFACE(
                 ARdata= rs1+imm;
                 case (wordsize)
                     2'b10  : begin
-                        align=(ARdata[1:0]==0)? 1:0;
+                        if(enable) align=(ARdata[1:0]==0)? 1:0;
                         Rdataq=Rdata_mem;
                     end
                     
                     2'b01  : begin
-                        align=(ARdata[0]==0)? 1:0;
+                        if(enable) align=(ARdata[0]==0)? 1:0;
                         case (ARdata[1])
                             1'b0: begin 
                                 case (signo) 
@@ -323,20 +323,17 @@ module MEMORY_INTERFACE(
             Wdata <= 32'd0;
             rdu <= 32'd0;
             Wstrb <= 4'b0000;
-            minstr<=32'd0;
+            inst <= 32'd0;
                  
         end else begin 
             Wdata<=Wdataq;
             Wstrb<=Wstrbq;
-            if(en_read) begin
-                rdu<=Rdataq;
-                if(en_instr) minstr<=minstru;
-            end
+            if(en_read) rdu<=Rdataq;
+            if(en_instr && en_read) inst <= Rdata_mem;
         end
     end
     
     assign rd= rd_en?Rdataq:32'bz;
-    assign inst=minstr;
          
 
 endmodule
