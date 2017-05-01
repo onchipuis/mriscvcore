@@ -50,7 +50,7 @@ tests/%.o: tests/%.S tests/riscv_test.h tests/test_macros.h
 clean:
 	rm -vrf $(FIRMWARE_OBJS) $(TEST_OBJS) \
 		firmware/firmware.elf firmware/firmware.bin firmware/firmware.hex firmware/firmware.map \
-		firmware/firmware_mini.elf firmware/firmware_mini.bin firmware/firmware_mini.hex firmware/firmware_mini.map firmware/*.o
+		firmware/firmware_mini.elf firmware/firmware_mini.bin firmware/firmware_mini.hex firmware/firmware_mini.map firmware/*.o *.hex
 
 .PHONY: all clean
 
