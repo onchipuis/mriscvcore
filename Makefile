@@ -1,4 +1,4 @@
-TEST_MINI = add
+TEST_MINI ?= add
 TEST_OBJS = $(addsuffix .o,$(basename $(wildcard tests/*.S)))
 FIRMWARE_OBJS = firmware/start.o
 GCC_WARNS  = -Werror -Wall -Wextra -Wshadow -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings
@@ -52,5 +52,5 @@ clean:
 		firmware/firmware.elf firmware/firmware.bin firmware/firmware.hex firmware/firmware.map \
 		firmware/firmware_mini.elf firmware/firmware_mini.bin firmware/firmware_mini.hex firmware/firmware_mini.map firmware/*.o *.hex
 
-.PHONY: all clean
+.PHONY: all clean firmware_mini.hex firmware/firmware_mini.bin firmware/firmware_mini.elf firmware/start_mini.o
 
