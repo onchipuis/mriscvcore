@@ -97,9 +97,9 @@ start:
 	sw a4,0(a0)
 	sw a5,0(a0)
 	
-	li a0, 0x20000000
+	/*li a0, 0x20000000
 	li a1, 123456789
-	sw a1,0(a0)
+	sw a1,0(a0)*/
 
 	/* break */
 	sbreak
