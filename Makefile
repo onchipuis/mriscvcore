@@ -22,7 +22,7 @@ firmware/firmware_mini.elf: firmware/start_mini.o tests/$(TEST_MINI).o firmware/
 	chmod -x $@
 	
 firmware/start_mini.o: firmware/start_mini.S
-	$(TOOLCHAIN_PREFIX)gcc -c -march=rv32im -o $@ $<
+	$(TOOLCHAIN_PREFIX)gcc -c -march=rv32im -o $@ $< -DTEST_FUNC_NAME=$(TEST_MINI) -DTEST_FUNC_NAME_ret=$(TEST_MINI)_ret
 
 firmware.hex: firmware/firmware.bin firmware/makehex.py
 	python3 firmware/makehex.py $< 16384 > $@
